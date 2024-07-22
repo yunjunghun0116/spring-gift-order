@@ -4,9 +4,13 @@ import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotNull;
+import org.hibernate.annotations.SQLDelete;
+import org.hibernate.annotations.SQLRestriction;
 
 @Entity
 @Table(name = "category")
+@SQLDelete(sql = "update category set deleted = true where id = ?")
+@SQLRestriction("deleted is false")
 public class Category extends BaseEntity {
     @NotNull
     @Column(name = "name")
@@ -20,6 +24,9 @@ public class Category extends BaseEntity {
     @NotNull
     @Column(name = "image_url")
     private String imageUrl;
+    @NotNull
+    @Column(name = "deleted")
+    private Boolean deleted = Boolean.FALSE;
 
     protected Category() {
     }
