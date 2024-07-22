@@ -8,6 +8,7 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotNull;
+<<<<<<< HEAD
 import org.hibernate.annotations.SQLDelete;
 import org.hibernate.annotations.SQLRestriction;
 
@@ -15,6 +16,11 @@ import org.hibernate.annotations.SQLRestriction;
 @Table(name = "option")
 @SQLDelete(sql = "update option set deleted = true where id = ?")
 @SQLRestriction("deleted is false")
+=======
+
+@Entity
+@Table(name = "option")
+>>>>>>> f2878d9 (setup: 베이스코드 세팅)
 public class Option extends BaseEntity {
     @NotNull
     @ManyToOne(fetch = FetchType.LAZY)
@@ -26,9 +32,12 @@ public class Option extends BaseEntity {
     @NotNull
     @Column(name = "quantity")
     private Integer quantity;
+<<<<<<< HEAD
     @NotNull
     @Column(name = "deleted")
     private Boolean deleted = Boolean.FALSE;
+=======
+>>>>>>> f2878d9 (setup: 베이스코드 세팅)
 
     protected Option() {
     }
