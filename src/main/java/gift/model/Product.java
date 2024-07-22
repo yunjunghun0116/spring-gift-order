@@ -7,7 +7,6 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotNull;
-<<<<<<< HEAD
 import org.hibernate.annotations.SQLDelete;
 import org.hibernate.annotations.SQLRestriction;
 
@@ -15,11 +14,6 @@ import org.hibernate.annotations.SQLRestriction;
 @Table(name = "product")
 @SQLDelete(sql = "update product set deleted = true where id = ?")
 @SQLRestriction("deleted is false")
-=======
-
-@Entity
-@Table(name = "product")
->>>>>>> f2878d9 (setup: 베이스코드 세팅)
 public class Product extends BaseEntity {
     @NotNull
     @Column(name = "name")
@@ -34,12 +28,9 @@ public class Product extends BaseEntity {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "category_id", referencedColumnName = "id")
     private Category category;
-<<<<<<< HEAD
     @NotNull
     @Column(name = "deleted")
     private Boolean deleted = Boolean.FALSE;
-=======
->>>>>>> f2878d9 (setup: 베이스코드 세팅)
 
     protected Product() {
     }

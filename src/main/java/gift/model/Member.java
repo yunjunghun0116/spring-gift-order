@@ -5,7 +5,6 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.Enumerated;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotNull;
-<<<<<<< HEAD
 import org.hibernate.annotations.SQLDelete;
 import org.hibernate.annotations.SQLRestriction;
 
@@ -13,11 +12,6 @@ import org.hibernate.annotations.SQLRestriction;
 @Table(name = "member")
 @SQLDelete(sql = "update member set deleted = true where id = ?")
 @SQLRestriction("deleted is false")
-=======
-
-@Entity
-@Table(name = "member")
->>>>>>> f2878d9 (setup: 베이스코드 세팅)
 public class Member extends BaseEntity {
     @NotNull
     @Column(name = "name")
@@ -32,12 +26,9 @@ public class Member extends BaseEntity {
     @Enumerated
     @Column(name = "role")
     private MemberRole role;
-<<<<<<< HEAD
     @NotNull
     @Column(name = "deleted")
     private Boolean deleted = Boolean.FALSE;
-=======
->>>>>>> f2878d9 (setup: 베이스코드 세팅)
 
     protected Member() {
     }
