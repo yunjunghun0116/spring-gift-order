@@ -24,6 +24,5 @@ insert into product(name, price, image_url, category_id, deleted)
 values ('50000원 상품권', 50000,
         'https://lh5.googleusercontent.com/proxy/M33I-cZvIHdtsY_uyd5R-4KXJ8uZBBAgVw4bmZagF1T5krxkC6AHpxPUvU_02yDsRljgOHwa-cUTlhgYG_bSNJbbmnf6k9OOPRQyvPf5m4nD',
         2, 0);
-
 insert into option(product_id, name, quantity, deleted)
 values (3, '상품옵션', 10000, 0);
