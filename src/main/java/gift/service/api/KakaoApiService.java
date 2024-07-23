@@ -3,6 +3,7 @@ package gift.service.api;
 import gift.config.properties.KakaoProperties;
 import gift.dto.KakaoAuthInformation;
 import gift.dto.KakaoAuthToken;
+import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
 import org.springframework.util.LinkedMultiValueMap;
@@ -40,7 +41,7 @@ public class KakaoApiService {
         return KakaoAuthInformation.of(name, email);
     }
 
-    private Map getTokenResponse(String code, String redirect_uri) {
+    private Map<String, Object> getTokenResponse(String code, String redirect_uri) {
         var url = "https://kauth.kakao.com/oauth/token";
         var body = new LinkedMultiValueMap<String, String>();
         body.add("grant_type", kakaoProperties.grantType());
@@ -53,11 +54,11 @@ public class KakaoApiService {
                 .contentType(MediaType.APPLICATION_FORM_URLENCODED)
                 .body(body)
                 .retrieve()
-                .toEntity(Map.class)
-                .getBody();
+                .body(new ParameterizedTypeReference<>() {
+                });
     }
 
-    private Map getKakaoAuthResponse(String accessToken) {
+    private Map<String, Object> getKakaoAuthResponse(String accessToken) {
         var url = "https://kapi.kakao.com/v2/user/me";
         var header = "Bearer " + accessToken;
 
@@ -65,11 +66,11 @@ public class KakaoApiService {
                 .uri(URI.create(url))
                 .header("Authorization", header)
                 .retrieve()
-                .toEntity(Map.class)
-                .getBody();
+                .body(new ParameterizedTypeReference<>() {
+                });
     }
 
-    private KakaoAuthToken getTokenWithResponse(Map response) {
+    private KakaoAuthToken getTokenWithResponse(Map<String, Object> response) {
         var accessToken = (String) response.get("access_token");
         var refreshToken = (String) response.get("refresh_token");
         return KakaoAuthToken.of(accessToken, refreshToken);
