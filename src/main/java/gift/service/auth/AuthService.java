@@ -8,10 +8,11 @@ import gift.dto.LoginRequest;
 import gift.dto.RegisterRequest;
 import gift.exception.DuplicatedEmailException;
 import gift.exception.InvalidLoginInfoException;
+import gift.exception.NotFoundElementException;
 import gift.model.Member;
 import gift.model.MemberRole;
 import gift.repository.MemberRepository;
-import gift.service.rest.KakaoTokenRestService;
+import gift.service.api.KakaoApiService;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
 import org.springframework.stereotype.Service;
@@ -24,12 +25,12 @@ import java.util.Date;
 public class AuthService {
 
     private final MemberRepository memberRepository;
-    private final KakaoTokenRestService kakaoTokenRestService;
+    private final KakaoApiService kakaoApiService;
     private final JwtProperties jwtProperties;
 
-    public AuthService(MemberRepository memberRepository, KakaoTokenRestService kakaoTokenRestService, JwtProperties jwtProperties) {
+    public AuthService(MemberRepository memberRepository, KakaoApiService kakaoApiService, JwtProperties jwtProperties) {
         this.memberRepository = memberRepository;
-        this.kakaoTokenRestService = kakaoTokenRestService;
+        this.kakaoApiService = kakaoApiService;
         this.jwtProperties = jwtProperties;
     }
 
@@ -44,15 +45,15 @@ public class AuthService {
     public AuthResponse login(LoginRequest loginRequest) {
         var member = memberRepository.findByEmail(loginRequest.email())
                 .orElseThrow(() -> new InvalidLoginInfoException(loginRequest.email() + "를 가진 멤버가 존재하지 않습니다."));
-        loginInfoValidation(member, loginRequest.password());
+        member.passwordCheck(loginRequest.password());
         var token = createAccessTokenWithMember(member);
         return AuthResponse.of(token);
     }
 
-    public AuthResponse oauth(String code) {
-        var kakaoAuthToken = kakaoTokenRestService.getTokenWithCode(code);
-        var kakaoAuthInformation = kakaoTokenRestService.getAuthInformationWithToken(kakaoAuthToken.accessToken());
-        var member = saveMemberWithOauth(kakaoAuthInformation);
+    public AuthResponse kakaoAuth(String code) {
+        var kakaoAuthToken = kakaoApiService.getTokenWithCode(code);
+        var kakaoAuthInformation = kakaoApiService.getAuthInformationWithToken(kakaoAuthToken.accessToken());
+        var member = getMemberWithKakaoAuth(kakaoAuthInformation);
         var token = createAccessTokenWithOAuth(member, kakaoAuthToken);
         return AuthResponse.of(token);
     }
@@ -89,19 +90,22 @@ public class AuthService {
         }
     }
 
-    private void loginInfoValidation(Member member, String password) {
-        if (!member.getPassword().equals(password)) {
-            throw new InvalidLoginInfoException("로그인 정보가 유효하지 않습니다.");
-        }
-    }
-
     private Member saveMemberWithMemberRequest(RegisterRequest registerRequest) {
         var member = new Member(registerRequest.name(), registerRequest.email(), registerRequest.password(), MemberRole.valueOf(registerRequest.role()));
         return memberRepository.save(member);
     }
 
-    private Member saveMemberWithOauth(KakaoAuthInformation kakaoAuthInformation) {
+    private Member saveMemberWithKakaoAuth(KakaoAuthInformation kakaoAuthInformation) {
         var member = new Member(kakaoAuthInformation.name(), kakaoAuthInformation.email(), MemberRole.MEMBER);
         return memberRepository.save(member);
+    }
+
+    private Member getMemberWithKakaoAuth(KakaoAuthInformation kakaoAuthInformation) {
+        if (memberRepository.existsByEmail(kakaoAuthInformation.email())) {
+            var member = memberRepository.findByEmail(kakaoAuthInformation.email())
+                    .orElseThrow(() -> new NotFoundElementException(kakaoAuthInformation.email() + "을 가진 이용자가 존재하지 않습니다."));
+            return member;
+        }
+        return saveMemberWithKakaoAuth(kakaoAuthInformation);
     }
 }

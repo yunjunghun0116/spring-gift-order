@@ -1,4 +1,4 @@
-package gift.service.rest;
+package gift.service.api;
 
 import gift.config.properties.KakaoProperties;
 import gift.dto.KakaoAuthInformation;
@@ -12,12 +12,12 @@ import java.net.URI;
 import java.util.Map;
 
 @Service
-public class KakaoTokenRestService {
+public class KakaoApiService {
 
     private final RestClient client = RestClient.builder().build();
     private final KakaoProperties kakaoProperties;
 
-    public KakaoTokenRestService(KakaoProperties kakaoProperties) {
+    public KakaoApiService(KakaoProperties kakaoProperties) {
         this.kakaoProperties = kakaoProperties;
     }
 

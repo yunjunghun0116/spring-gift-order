@@ -36,8 +36,8 @@ public class AuthController {
     }
 
     @GetMapping("/oauth")
-    public ResponseEntity<AuthResponse> oauth(@RequestParam String code) {
-        var auth = authService.oauth(code);
+    public ResponseEntity<AuthResponse> kakaoAuth(@RequestParam String code) {
+        var auth = authService.kakaoAuth(code);
         return ResponseEntity.ok(auth);
     }
 }
