@@ -33,6 +33,13 @@ public class Member extends BaseEntity {
     protected Member() {
     }
 
+    public Member(String name, String email, MemberRole role) {
+        this.name = name;
+        this.email = email;
+        this.password = "KAKAO";
+        this.role = role;
+    }
+
     public Member(String name, String email, String password, MemberRole role) {
         this.name = name;
         this.email = email;

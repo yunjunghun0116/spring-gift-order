@@ -2,6 +2,7 @@ package gift.service.auth;
 
 import gift.config.properties.JwtProperties;
 import gift.dto.AuthResponse;
+import gift.dto.KakaoAuthInformation;
 import gift.dto.LoginRequest;
 import gift.dto.RegisterRequest;
 import gift.exception.DuplicatedEmailException;
@@ -9,6 +10,7 @@ import gift.exception.InvalidLoginInfoException;
 import gift.model.Member;
 import gift.model.MemberRole;
 import gift.repository.MemberRepository;
+import gift.service.rest.KakaoTokenRestService;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
 import org.springframework.stereotype.Service;
@@ -21,10 +23,12 @@ import java.util.Date;
 public class AuthService {
 
     private final MemberRepository memberRepository;
+    private final KakaoTokenRestService kakaoTokenRestService;
     private final JwtProperties jwtProperties;
 
-    public AuthService(MemberRepository memberRepository, JwtProperties jwtProperties) {
+    public AuthService(MemberRepository memberRepository, KakaoTokenRestService kakaoTokenRestService, JwtProperties jwtProperties) {
         this.memberRepository = memberRepository;
+        this.kakaoTokenRestService = kakaoTokenRestService;
         this.jwtProperties = jwtProperties;
     }
 
@@ -40,6 +44,14 @@ public class AuthService {
         var member = memberRepository.findByEmail(loginRequest.email())
                 .orElseThrow(() -> new InvalidLoginInfoException(loginRequest.email() + "를 가진 멤버가 존재하지 않습니다."));
         loginInfoValidation(member, loginRequest.password());
+        var token = createAccessTokenWithMember(member);
+        return AuthResponse.of(token);
+    }
+
+    public AuthResponse oauth(String code) {
+        var accessToken = kakaoTokenRestService.getTokenWithCode(code);
+        var kakaoAuthInformation = kakaoTokenRestService.getAuthInformationWithToken(accessToken);
+        var member = saveMemberWithOauth(kakaoAuthInformation);
         var token = createAccessTokenWithMember(member);
         return AuthResponse.of(token);
     }
@@ -69,6 +81,11 @@ public class AuthService {
 
     private Member saveMemberWithMemberRequest(RegisterRequest registerRequest) {
         var member = new Member(registerRequest.name(), registerRequest.email(), registerRequest.password(), MemberRole.valueOf(registerRequest.role()));
+        return memberRepository.save(member);
+    }
+
+    private Member saveMemberWithOauth(KakaoAuthInformation kakaoAuthInformation) {
+        var member = new Member(kakaoAuthInformation.name(), kakaoAuthInformation.email(), MemberRole.MEMBER);
         return memberRepository.save(member);
     }
 }
