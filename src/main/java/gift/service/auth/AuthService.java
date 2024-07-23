@@ -44,7 +44,7 @@ public class AuthService {
     @Transactional(readOnly = true)
     public AuthResponse login(LoginRequest loginRequest) {
         var member = memberRepository.findByEmail(loginRequest.email())
-                .orElseThrow(() -> new InvalidLoginInfoException(loginRequest.email() + "를 가진 멤버가 존재하지 않습니다."));
+                .orElseThrow(() -> new InvalidLoginInfoException(loginRequest.email() + "를 가진 이용자가 존재하지 않습니다."));
         member.passwordCheck(loginRequest.password());
         var token = createAccessTokenWithMember(member);
         return AuthResponse.of(token);
@@ -54,6 +54,14 @@ public class AuthService {
         var kakaoAuthToken = kakaoApiService.getTokenWithCode(code);
         var kakaoAuthInformation = kakaoApiService.getAuthInformationWithToken(kakaoAuthToken.accessToken());
         var member = getMemberWithKakaoAuth(kakaoAuthInformation);
+        var token = createAccessTokenWithOAuth(member, kakaoAuthToken);
+        return AuthResponse.of(token);
+    }
+
+    public AuthResponse setKakaoTokenWithMember(Long memberId, String code) {
+        var member = memberRepository.findById(memberId)
+                .orElseThrow(() -> new NotFoundElementException(memberId + "를 가진 이용자가 존재하지 않습니다."));
+        var kakaoAuthToken = kakaoApiService.getTokenToSetWithCode(code);
         var token = createAccessTokenWithOAuth(member, kakaoAuthToken);
         return AuthResponse.of(token);
     }

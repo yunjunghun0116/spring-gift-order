@@ -28,6 +28,13 @@ public class KakaoApiService {
         return KakaoAuthToken.of(accessToken, refreshToken);
     }
 
+    public KakaoAuthToken getTokenToSetWithCode(String code) {
+        var response = getTokenToSetResponse(code);
+        var accessToken = (String) response.get("access_token");
+        var refreshToken = (String) response.get("refresh_token");
+        return KakaoAuthToken.of(accessToken, refreshToken);
+    }
+
     public KakaoAuthInformation getAuthInformationWithToken(String accessToken) {
         var response = getKakaoAuthResponse(accessToken);
         var kakaoAccount = (Map<String, Object>) response.get("kakao_account");
@@ -43,6 +50,25 @@ public class KakaoApiService {
         body.add("grant_type", kakaoProperties.grantType());
         body.add("client_id", kakaoProperties.restApiKey());
         body.add("redirect_uri", kakaoProperties.redirectUrl());
+        body.add("code", code);
+
+        var response = client.post()
+                .uri(URI.create(url))
+                .contentType(MediaType.APPLICATION_FORM_URLENCODED)
+                .body(body)
+                .retrieve()
+                .toEntity(Map.class)
+                .getBody();
+
+        return response;
+    }
+
+    private Map getTokenToSetResponse(String code) {
+        var url = "https://kauth.kakao.com/oauth/token";
+        var body = new LinkedMultiValueMap<String, String>();
+        body.add("grant_type", kakaoProperties.grantType());
+        body.add("client_id", kakaoProperties.restApiKey());
+        body.add("redirect_uri", kakaoProperties.setUrl());
         body.add("code", code);
 
         var response = client.post()
