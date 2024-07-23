@@ -21,8 +21,6 @@ public class GlobalExceptionHandler {
     static final String INVALID_PAGE_REQUEST_MESSAGE = "요청에 담긴 페이지 정보가 유효하지 않습니다.";
     static final String UNAUTHORIZED_ACCESS_MESSAGE = "인가되지 않은 요청입니다.";
     static final String EXPIRED_JWT_MESSAGE = "인증 정보가 만료되었습니다.";
-    static final String BAD_REQUEST_MESSAGE = "잘못된 요청입니다.";
-    static final String INTERNAL_SERVER_ERROR_MESSAGE = "예기치 않은 상태로 인해 요청을 수행할 수 없습니다.";
 
     @ExceptionHandler(value = NotFoundElementException.class)
     public ResponseEntity<String> notFoundElementExceptionHandling() {
@@ -60,8 +58,8 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(value = BadRequestException.class)
-    public ResponseEntity<String> badRequestExceptionHandling() {
-        return new ResponseEntity<>(BAD_REQUEST_MESSAGE, HttpStatus.BAD_REQUEST);
+    public ResponseEntity<String> badRequestExceptionHandling(BadRequestException exception) {
+        return new ResponseEntity<>(exception.getMessage(), HttpStatus.BAD_REQUEST);
     }
 
     @ExceptionHandler(value = MethodArgumentNotValidException.class)
@@ -83,7 +81,6 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(value = Exception.class)
     public ResponseEntity<String> internalServerExceptionHandling(Exception exception) {
-        System.out.println(exception.getMessage());
-        return new ResponseEntity<>(INTERNAL_SERVER_ERROR_MESSAGE, HttpStatus.INTERNAL_SERVER_ERROR);
+        return new ResponseEntity<>(exception.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
     }
 }

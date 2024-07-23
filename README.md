@@ -30,9 +30,13 @@
 
 #### 1단계
 
-- [ ] 카카오계정 로그인을 통해 인증코드를 받는다.
-- [ ] 토큰 받기를 읽고 AccessToken 을 추출한다.
-- [ ] 앱 키, 인가 코드가 절대 유출되지 않도록 한다.
+- [X] 카카오계정 로그인을 통해 인증코드를 받는다.
+- [X] 토큰 받기를 읽고 AccessToken 을 추출한다.
+- [X] 앱 키, 인가 코드가 절대 유출되지 않도록 한다.
+- 가입 및 로그인 요청
+  URL:https://kauth.kakao.com/oauth/authorize?response_type=code&client_id=RESTAPI-KEY&redirect_uri=REDIRECT-URL
+- 토큰 재설정 요청
+  URL:https://kauth.kakao.com/oauth/authorize?response_type=code&client_id=RESTAPI-KEY&redirect_uri=SET-URL
 
 ### 나만의 HTTP RULE
 
