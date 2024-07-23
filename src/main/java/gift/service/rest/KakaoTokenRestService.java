@@ -2,6 +2,7 @@ package gift.service.rest;
 
 import gift.config.properties.KakaoProperties;
 import gift.dto.KakaoAuthInformation;
+import gift.dto.KakaoAuthToken;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
 import org.springframework.util.LinkedMultiValueMap;
@@ -20,9 +21,11 @@ public class KakaoTokenRestService {
         this.kakaoProperties = kakaoProperties;
     }
 
-    public String getTokenWithCode(String code) {
+    public KakaoAuthToken getTokenWithCode(String code) {
         var response = getTokenResponse(code);
-        return (String) response.get("access_token");
+        var accessToken = (String) response.get("access_token");
+        var refreshToken = (String) response.get("refresh_token");
+        return KakaoAuthToken.of(accessToken, refreshToken);
     }
 
     public KakaoAuthInformation getAuthInformationWithToken(String accessToken) {
@@ -63,7 +66,7 @@ public class KakaoTokenRestService {
                 .retrieve()
                 .toEntity(Map.class)
                 .getBody();
-        System.out.println(response);
+
         return response;
     }
 }

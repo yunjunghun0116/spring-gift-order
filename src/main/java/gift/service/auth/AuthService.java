@@ -3,6 +3,7 @@ package gift.service.auth;
 import gift.config.properties.JwtProperties;
 import gift.dto.AuthResponse;
 import gift.dto.KakaoAuthInformation;
+import gift.dto.KakaoAuthToken;
 import gift.dto.LoginRequest;
 import gift.dto.RegisterRequest;
 import gift.exception.DuplicatedEmailException;
@@ -49,10 +50,10 @@ public class AuthService {
     }
 
     public AuthResponse oauth(String code) {
-        var accessToken = kakaoTokenRestService.getTokenWithCode(code);
-        var kakaoAuthInformation = kakaoTokenRestService.getAuthInformationWithToken(accessToken);
+        var kakaoAuthToken = kakaoTokenRestService.getTokenWithCode(code);
+        var kakaoAuthInformation = kakaoTokenRestService.getAuthInformationWithToken(kakaoAuthToken.accessToken());
         var member = saveMemberWithOauth(kakaoAuthInformation);
-        var token = createAccessTokenWithMember(member);
+        var token = createAccessTokenWithOAuth(member, kakaoAuthToken);
         return AuthResponse.of(token);
     }
 
@@ -61,6 +62,21 @@ public class AuthService {
                 .subject(member.getId().toString())
                 .claim("name", member.getName())
                 .claim("role", member.getRole())
+                .claim("kakaoAccessToken", "")
+                .claim("kakaoRefreshToken", "")
+                .issuedAt(new Date())
+                .expiration(new Date(System.currentTimeMillis() + jwtProperties.expiredTime()))
+                .signWith(Keys.hmacShaKeyFor(jwtProperties.secretKey().getBytes()))
+                .compact();
+    }
+
+    private String createAccessTokenWithOAuth(Member member, KakaoAuthToken kakaoAuthToken) {
+        return Jwts.builder()
+                .subject(member.getId().toString())
+                .claim("name", member.getName())
+                .claim("role", member.getRole())
+                .claim("kakaoAccessToken", kakaoAuthToken.accessToken())
+                .claim("kakaoRefreshToken", kakaoAuthToken.refreshToken())
                 .issuedAt(new Date())
                 .expiration(new Date(System.currentTimeMillis() + jwtProperties.expiredTime()))
                 .signWith(Keys.hmacShaKeyFor(jwtProperties.secretKey().getBytes()))
