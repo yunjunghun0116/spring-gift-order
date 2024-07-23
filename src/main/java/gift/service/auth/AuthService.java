@@ -110,9 +110,8 @@ public class AuthService {
 
     private Member getMemberWithKakaoAuth(KakaoAuthInformation kakaoAuthInformation) {
         if (memberRepository.existsByEmail(kakaoAuthInformation.email())) {
-            var member = memberRepository.findByEmail(kakaoAuthInformation.email())
+            return memberRepository.findByEmail(kakaoAuthInformation.email())
                     .orElseThrow(() -> new NotFoundElementException(kakaoAuthInformation.email() + "을 가진 이용자가 존재하지 않습니다."));
-            return member;
         }
         return saveMemberWithKakaoAuth(kakaoAuthInformation);
     }

@@ -19,8 +19,7 @@ public class AuthTestReflectionComponent {
             var method = authInterceptor.getClass().getDeclaredMethod("getClaimsWithToken", String.class);
             method.setAccessible(true);
             var claims = (Claims) method.invoke(authInterceptor, token);
-            var memberId = Long.parseLong(claims.getSubject());
-            return memberId;
+            return Long.parseLong(claims.getSubject());
         } catch (Exception e) {
             throw new RuntimeException("토큰으로 ID 복호화하는 과정에서 예외 발생: " + e.getMessage(), e);
         }
@@ -31,8 +30,7 @@ public class AuthTestReflectionComponent {
             var method = authInterceptor.getClass().getDeclaredMethod("getClaimsWithToken", String.class);
             method.setAccessible(true);
             var claims = (Claims) method.invoke(authInterceptor, token);
-            var memberRole = MemberRole.valueOf((String) claims.get("role"));
-            return memberRole;
+            return MemberRole.valueOf((String) claims.get("role"));
         } catch (Exception e) {
             throw new RuntimeException("토큰으로 ROLE 복호화하는 과정에서 예외 발생: " + e.getMessage(), e);
         }
