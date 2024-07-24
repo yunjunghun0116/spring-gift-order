@@ -31,6 +31,12 @@ public class KakaoApiController {
         return ResponseEntity.ok(token);
     }
 
+    @GetMapping("/token/refresh")
+    public ResponseEntity<KakaoAuthToken> refreshToken(@RequestParam String refreshToken) {
+        var token = kakaoApiService.getKakaoAuthTokenToRefresh(refreshToken);
+        return ResponseEntity.ok(token);
+    }
+
     @GetMapping("/get-oauth")
     public ResponseEntity<?> redirectOAuth() {
         var headers = new HttpHeaders();
