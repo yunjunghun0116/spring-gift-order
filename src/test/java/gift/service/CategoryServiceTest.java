@@ -1,6 +1,6 @@
 package gift.service;
 
-import gift.dto.CategoryRequest;
+import gift.dto.category.CategoryRequest;
 import gift.exception.DuplicatedNameException;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.DisplayName;

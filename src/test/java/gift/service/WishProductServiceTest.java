@@ -1,7 +1,7 @@
 package gift.service;
 
-import gift.dto.WishProductAddRequest;
-import gift.dto.WishProductUpdateRequest;
+import gift.dto.wishproduct.WishProductAddRequest;
+import gift.dto.wishproduct.WishProductUpdateRequest;
 import gift.exception.NotFoundElementException;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.DisplayName;

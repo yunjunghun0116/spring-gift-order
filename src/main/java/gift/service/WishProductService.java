@@ -1,9 +1,9 @@
 package gift.service;
 
-import gift.dto.ProductBasicInformation;
-import gift.dto.WishProductAddRequest;
-import gift.dto.WishProductResponse;
-import gift.dto.WishProductUpdateRequest;
+import gift.dto.product.ProductBasicInformation;
+import gift.dto.wishproduct.WishProductAddRequest;
+import gift.dto.wishproduct.WishProductResponse;
+import gift.dto.wishproduct.WishProductUpdateRequest;
 import gift.exception.NotFoundElementException;
 import gift.model.Member;
 import gift.model.Product;

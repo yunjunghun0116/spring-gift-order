@@ -1,7 +1,7 @@
 package gift.controller;
 
-import gift.dto.LoginRequest;
-import gift.dto.RegisterRequest;
+import gift.dto.auth.LoginRequest;
+import gift.dto.auth.RegisterRequest;
 import gift.service.auth.AuthService;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;

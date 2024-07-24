@@ -2,10 +2,10 @@ package gift.controller;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import gift.dto.LoginRequest;
-import gift.dto.WishProductAddRequest;
-import gift.dto.WishProductResponse;
-import gift.dto.WishProductUpdateRequest;
+import gift.dto.auth.LoginRequest;
+import gift.dto.wishproduct.WishProductAddRequest;
+import gift.dto.wishproduct.WishProductResponse;
+import gift.dto.wishproduct.WishProductUpdateRequest;
 import gift.service.WishProductService;
 import gift.service.auth.AuthService;
 import org.assertj.core.api.Assertions;

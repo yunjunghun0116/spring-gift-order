@@ -1,8 +1,8 @@
 package gift.service;
 
-import gift.dto.CategoryInformation;
-import gift.dto.ProductRequest;
-import gift.dto.ProductResponse;
+import gift.dto.category.CategoryInformation;
+import gift.dto.product.ProductRequest;
+import gift.dto.product.ProductResponse;
 import gift.exception.InvalidProductNameWithKAKAOException;
 import gift.exception.NotFoundElementException;
 import gift.model.Category;

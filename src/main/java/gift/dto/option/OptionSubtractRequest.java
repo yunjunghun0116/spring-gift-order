@@ -1,4 +1,4 @@
-package gift.dto;
+package gift.dto.option;
 
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;

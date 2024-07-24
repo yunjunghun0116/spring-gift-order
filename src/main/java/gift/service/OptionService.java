@@ -1,9 +1,9 @@
 package gift.service;
 
-import gift.dto.OptionAddRequest;
-import gift.dto.OptionResponse;
-import gift.dto.OptionSubtractRequest;
-import gift.dto.OptionUpdateRequest;
+import gift.dto.option.OptionAddRequest;
+import gift.dto.option.OptionResponse;
+import gift.dto.option.OptionSubtractRequest;
+import gift.dto.option.OptionUpdateRequest;
 import gift.exception.DuplicatedNameException;
 import gift.exception.NotFoundElementException;
 import gift.model.Option;

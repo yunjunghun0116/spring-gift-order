@@ -1,6 +1,6 @@
 package gift.service;
 
-import gift.dto.ProductRequest;
+import gift.dto.product.ProductRequest;
 import gift.exception.InvalidProductNameWithKAKAOException;
 import gift.model.MemberRole;
 import org.assertj.core.api.Assertions;
