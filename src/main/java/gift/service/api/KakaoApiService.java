@@ -1,47 +1,45 @@
 package gift.service.api;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import gift.config.properties.KakaoProperties;
 import gift.dto.KakaoAuthInformation;
+import gift.dto.KakaoAuthResponse;
 import gift.dto.KakaoAuthToken;
-import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.web.client.RestClient;
 
 import java.net.URI;
-import java.util.Map;
 
 @Service
 public class KakaoApiService {
 
     private final RestClient client = RestClient.builder().build();
     private final KakaoProperties kakaoProperties;
+    private final ObjectMapper objectMapper = new ObjectMapper();
 
     public KakaoApiService(KakaoProperties kakaoProperties) {
         this.kakaoProperties = kakaoProperties;
     }
 
     public KakaoAuthToken getTokenWithCode(String code) {
-        var response = getTokenResponse(code, kakaoProperties.redirectUrl());
-        return getTokenWithResponse(response);
+        return getTokenResponse(code, kakaoProperties.redirectUrl());
     }
 
     public KakaoAuthToken getTokenToSetWithCode(String code) {
-        var response = getTokenResponse(code, kakaoProperties.setUrl());
-        return getTokenWithResponse(response);
+        return getTokenResponse(code, kakaoProperties.setUrl());
     }
 
     public KakaoAuthInformation getAuthInformationWithToken(String accessToken) {
         var response = getKakaoAuthResponse(accessToken);
-        var kakaoAccount = (Map<String, Object>) response.get("kakao_account");
-        var profile = (Map<String, Object>) kakaoAccount.get("profile");
-        var name = (String) profile.get("nickname");
-        var email = (String) kakaoAccount.get("email");
+        var name = response.kakaoAccount().profile().name();
+        var email = response.kakaoAccount().email();
         return KakaoAuthInformation.of(name, email);
     }
 
-    private Map<String, Object> getTokenResponse(String code, String redirect_uri) {
+    private KakaoAuthToken getTokenResponse(String code, String redirect_uri) {
         var url = "https://kauth.kakao.com/oauth/token";
         var body = new LinkedMultiValueMap<String, String>();
         body.add("grant_type", kakaoProperties.grantType());
@@ -49,30 +47,34 @@ public class KakaoApiService {
         body.add("redirect_uri", redirect_uri);
         body.add("code", code);
 
-        return client.post()
+        var response = client.post()
                 .uri(URI.create(url))
                 .contentType(MediaType.APPLICATION_FORM_URLENCODED)
                 .body(body)
                 .retrieve()
-                .body(new ParameterizedTypeReference<>() {
-                });
+                .body(String.class);
+
+        return convertDtoWithJsonString(response, KakaoAuthToken.class);
     }
 
-    private Map<String, Object> getKakaoAuthResponse(String accessToken) {
+    private KakaoAuthResponse getKakaoAuthResponse(String accessToken) {
         var url = "https://kapi.kakao.com/v2/user/me";
         var header = "Bearer " + accessToken;
 
-        return client.get()
+        var response = client.get()
                 .uri(URI.create(url))
                 .header("Authorization", header)
                 .retrieve()
-                .body(new ParameterizedTypeReference<>() {
-                });
+                .body(String.class);
+
+        return convertDtoWithJsonString(response, KakaoAuthResponse.class);
     }
 
-    private KakaoAuthToken getTokenWithResponse(Map<String, Object> response) {
-        var accessToken = (String) response.get("access_token");
-        var refreshToken = (String) response.get("refresh_token");
-        return KakaoAuthToken.of(accessToken, refreshToken);
+    public <T> T convertDtoWithJsonString(String response, Class<T> returnTypeClass) {
+        try {
+            return objectMapper.readValue(response, returnTypeClass);
+        } catch (JsonProcessingException exception) {
+            throw new RuntimeException("DTO 로 변환하는 과정에서 예외가 발생했습니다.", exception);
+        }
     }
 }
