@@ -32,23 +32,18 @@ public class AuthInterceptor implements HandlerInterceptor {
     }
 
     private Claims getClaimsWithToken(String token) {
-        var claims = Jwts.parser()
+        return Jwts.parser()
                 .verifyWith(getSecretKey())
                 .build()
                 .parseSignedClaims(token)
                 .getPayload();
-        return claims;
     }
 
     private void setMemberInformationWithClaims(HttpServletRequest request, Claims claims) {
         var memberId = Long.parseLong(claims.getSubject());
         var memberRole = MemberRole.valueOf(claims.get("role").toString());
-        var kakaoAccessToken = claims.get("kakaoAccessToken").toString();
-        var kakaoRefreshToken = claims.get("kakaoRefreshToken").toString();
         request.setAttribute("memberId", memberId);
         request.setAttribute("memberRole", memberRole);
-        request.setAttribute("kakaoAccessToken", kakaoAccessToken);
-        request.setAttribute("kakaoRefreshToken", kakaoRefreshToken);
     }
 
     private String getTokenWithAuthorizationHeader(String authorizationHeader) {

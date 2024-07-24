@@ -8,7 +8,6 @@ import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestAttribute;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -36,15 +35,9 @@ public class AuthController {
         return ResponseEntity.ok(auth);
     }
 
-    @GetMapping("/oauth")
+    @GetMapping("/oauth/kakao")
     public ResponseEntity<AuthResponse> kakaoAuth(@RequestParam String code) {
         var auth = authService.kakaoAuth(code);
-        return ResponseEntity.ok(auth);
-    }
-
-    @GetMapping("/set-token")
-    public ResponseEntity<AuthResponse> setKakaoTokenWithMember(@RequestAttribute("memberId") Long memberId, @RequestParam String code) {
-        var auth = authService.setKakaoTokenWithMember(memberId, code);
         return ResponseEntity.ok(auth);
     }
 }

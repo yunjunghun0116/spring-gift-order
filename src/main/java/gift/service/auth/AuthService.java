@@ -2,10 +2,9 @@ package gift.service.auth;
 
 import gift.config.properties.JwtProperties;
 import gift.dto.auth.AuthResponse;
-import gift.dto.kakao.KakaoAuthInformation;
-import gift.dto.kakao.KakaoAuthToken;
 import gift.dto.auth.LoginRequest;
 import gift.dto.auth.RegisterRequest;
+import gift.dto.kakao.KakaoAuthInformation;
 import gift.exception.DuplicatedEmailException;
 import gift.exception.InvalidLoginInfoException;
 import gift.exception.NotFoundElementException;
@@ -35,7 +34,6 @@ public class AuthService {
     }
 
     public AuthResponse register(RegisterRequest registerRequest) {
-        emailValidation(registerRequest.email());
         var member = saveMemberWithMemberRequest(registerRequest);
         return createAuthResponseWithMember(member);
     }
@@ -49,17 +47,10 @@ public class AuthService {
     }
 
     public AuthResponse kakaoAuth(String code) {
-        var kakaoAuthToken = kakaoApiService.getTokenWithCode(code);
+        var kakaoAuthToken = kakaoApiService.getTokenWithAuth(code);
         var kakaoAuthInformation = kakaoApiService.getAuthInformationWithToken(kakaoAuthToken.accessToken());
         var member = getMemberWithKakaoAuth(kakaoAuthInformation);
-        return createAuthResponseWithOAuth(member, kakaoAuthToken);
-    }
-
-    public AuthResponse setKakaoTokenWithMember(Long memberId, String code) {
-        var member = memberRepository.findById(memberId)
-                .orElseThrow(() -> new NotFoundElementException(memberId + "를 가진 이용자가 존재하지 않습니다."));
-        var kakaoAuthToken = kakaoApiService.getTokenToSetWithCode(code);
-        return createAuthResponseWithOAuth(member, kakaoAuthToken);
+        return createAuthResponseWithMember(member);
     }
 
     private AuthResponse createAuthResponseWithMember(Member member) {
@@ -67,22 +58,6 @@ public class AuthService {
                 .subject(member.getId().toString())
                 .claim("name", member.getName())
                 .claim("role", member.getRole())
-                .claim("kakaoAccessToken", "")
-                .claim("kakaoRefreshToken", "")
-                .issuedAt(new Date())
-                .expiration(new Date(System.currentTimeMillis() + jwtProperties.expiredTime()))
-                .signWith(Keys.hmacShaKeyFor(jwtProperties.secretKey().getBytes()))
-                .compact();
-        return AuthResponse.of(token);
-    }
-
-    private AuthResponse createAuthResponseWithOAuth(Member member, KakaoAuthToken kakaoAuthToken) {
-        var token = Jwts.builder()
-                .subject(member.getId().toString())
-                .claim("name", member.getName())
-                .claim("role", member.getRole())
-                .claim("kakaoAccessToken", kakaoAuthToken.accessToken())
-                .claim("kakaoRefreshToken", kakaoAuthToken.refreshToken())
                 .issuedAt(new Date())
                 .expiration(new Date(System.currentTimeMillis() + jwtProperties.expiredTime()))
                 .signWith(Keys.hmacShaKeyFor(jwtProperties.secretKey().getBytes()))
@@ -97,11 +72,13 @@ public class AuthService {
     }
 
     private Member saveMemberWithMemberRequest(RegisterRequest registerRequest) {
+        emailValidation(registerRequest.email());
         var member = new Member(registerRequest.name(), registerRequest.email(), registerRequest.password(), MemberRole.valueOf(registerRequest.role()));
         return memberRepository.save(member);
     }
 
     private Member saveMemberWithKakaoAuth(KakaoAuthInformation kakaoAuthInformation) {
+        emailValidation(kakaoAuthInformation.email());
         var member = new Member(kakaoAuthInformation.name(), kakaoAuthInformation.email(), MemberRole.MEMBER);
         return memberRepository.save(member);
     }

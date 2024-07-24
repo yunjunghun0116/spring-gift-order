@@ -24,50 +24,49 @@ public class KakaoApiService {
         this.kakaoProperties = kakaoProperties;
     }
 
-    public KakaoAuthToken getTokenWithCode(String code) {
-        return getTokenResponse(code, kakaoProperties.redirectUrl());
+    public KakaoAuthToken getTokenWithAuth(String code) {
+        var response = getTokenResponse(code, kakaoProperties.redirectUri());
+        return convertDtoWithJsonString(response, KakaoAuthToken.class);
     }
 
-    public KakaoAuthToken getTokenToSetWithCode(String code) {
-        return getTokenResponse(code, kakaoProperties.setUrl());
+    public KakaoAuthToken getTokenWithAccess(String code) {
+        var response = getTokenResponse(code, kakaoProperties.tokenUri());
+        return convertDtoWithJsonString(response, KakaoAuthToken.class);
     }
 
     public KakaoAuthInformation getAuthInformationWithToken(String accessToken) {
         var response = getKakaoAuthResponse(accessToken);
-        var name = response.kakaoAccount().profile().name();
-        var email = response.kakaoAccount().email();
+        var kakaoAccount = convertDtoWithJsonString(response, KakaoAuthResponse.class).kakaoAccount();
+        var name = kakaoAccount.profile().name();
+        var email = kakaoAccount.email();
         return KakaoAuthInformation.of(name, email);
     }
 
-    private KakaoAuthToken getTokenResponse(String code, String redirect_uri) {
+    private String getTokenResponse(String code, String redirectUri) {
         var url = "https://kauth.kakao.com/oauth/token";
         var body = new LinkedMultiValueMap<String, String>();
         body.add("grant_type", kakaoProperties.grantType());
         body.add("client_id", kakaoProperties.restApiKey());
-        body.add("redirect_uri", redirect_uri);
+        body.add("redirect_uri", redirectUri);
         body.add("code", code);
 
-        var response = client.post()
+        return client.post()
                 .uri(URI.create(url))
                 .contentType(MediaType.APPLICATION_FORM_URLENCODED)
                 .body(body)
                 .retrieve()
                 .body(String.class);
-
-        return convertDtoWithJsonString(response, KakaoAuthToken.class);
     }
 
-    private KakaoAuthResponse getKakaoAuthResponse(String accessToken) {
+    private String getKakaoAuthResponse(String accessToken) {
         var url = "https://kapi.kakao.com/v2/user/me";
         var header = "Bearer " + accessToken;
 
-        var response = client.get()
+        return client.get()
                 .uri(URI.create(url))
                 .header("Authorization", header)
                 .retrieve()
                 .body(String.class);
-
-        return convertDtoWithJsonString(response, KakaoAuthResponse.class);
     }
 
     private <T> T convertDtoWithJsonString(String response, Class<T> returnTypeClass) {
