@@ -32,11 +32,10 @@
 
 - [X] 카카오계정 로그인을 통해 인증코드를 받는다.
 - [X] 토큰 받기를 읽고 AccessToken 을 추출한다.
-- [X] 앱 키, 인가 코드가 절대 유출되지 않도록 한다.
-- 가입 및 로그인 요청
-  URL:https://kauth.kakao.com/oauth/authorize?response_type=code&client_id=RESTAPI-KEY&redirect_uri=REDIRECT-URL
-- 토큰 재설정 요청
-  URL:https://kauth.kakao.com/oauth/authorize?response_type=code&client_id=RESTAPI-KEY&redirect_uri=SET-URL
+- [X] 앱 키, 인가 코드가 유출되지 않도록 한다.
+- 가입 및 로그인 요청 URL : http://localhost:8080/api/kakao/get-oauth (JWT 불필요)
+- 토큰 요청 URL : http://localhost:8080/api/kakao/get-token (JWT 필요)
+- 토큰 갱신 요청 URL : http://localhost:8080/api/kakao/token/refresh (JWT 필요)
 
 ### 나만의 HTTP RULE
 
