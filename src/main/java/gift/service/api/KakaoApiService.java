@@ -70,7 +70,7 @@ public class KakaoApiService {
         return convertDtoWithJsonString(response, KakaoAuthResponse.class);
     }
 
-    public <T> T convertDtoWithJsonString(String response, Class<T> returnTypeClass) {
+    private <T> T convertDtoWithJsonString(String response, Class<T> returnTypeClass) {
         try {
             return objectMapper.readValue(response, returnTypeClass);
         } catch (JsonProcessingException exception) {
