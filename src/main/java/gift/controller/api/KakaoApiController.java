@@ -19,7 +19,7 @@ public class KakaoApiController {
     }
 
     @GetMapping("/token")
-    public ResponseEntity<KakaoAuthToken> kakaoAuth(@RequestParam String code) {
+    public ResponseEntity<KakaoAuthToken> getToken(@RequestParam String code) {
         var token = kakaoApiService.getKakaoAuthTokenToAccess(code);
         return ResponseEntity.ok(token);
     }
