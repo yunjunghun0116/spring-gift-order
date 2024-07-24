@@ -120,7 +120,7 @@ class WishProductControllerTest {
         addResult.andExpect(status().isCreated());
         var wishProducts = wishProductService.getWishProducts(1L, PageRequest.of(0, 10));
         Assertions.assertThat(wishProducts.size()).isEqualTo(1);
-        Assertions.assertThat(wishProducts.get(0).count()).isEqualTo(20);
+        Assertions.assertThat(wishProducts.get(0).quantity()).isEqualTo(20);
 
         wishProductService.deleteWishProduct(wishProduct.id());
     }
@@ -150,7 +150,7 @@ class WishProductControllerTest {
 
     @Test
     @DisplayName("위시 리스트 수량 변경하기")
-    void successUpdateCount() throws Exception {
+    void successUpdateQuantity() throws Exception {
         //given
         var wishProduct = wishProductService
                 .addWishProduct(new WishProductAddRequest(1L, 10), 1L);
@@ -164,14 +164,14 @@ class WishProductControllerTest {
         result.andExpect(status().isNoContent());
         var wishProducts = wishProductService.getWishProducts(1L, PageRequest.of(0, 10));
         Assertions.assertThat(wishProducts.size()).isEqualTo(1);
-        Assertions.assertThat(wishProducts.get(0).count()).isEqualTo(30);
+        Assertions.assertThat(wishProducts.get(0).quantity()).isEqualTo(30);
 
         wishProductService.deleteWishProduct(wishProduct.id());
     }
 
     @Test
     @DisplayName("위시 리스트 상품 추가후 수량 0으로 변경하기")
-    void successUpdateCountZero() throws Exception {
+    void successUpdateQuantityZero() throws Exception {
         //given
         var wishProduct = wishProductService
                 .addWishProduct(new WishProductAddRequest(1L, 10),

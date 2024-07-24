@@ -74,7 +74,7 @@ public class KakaoApiService {
         try {
             return objectMapper.readValue(response, returnTypeClass);
         } catch (JsonProcessingException exception) {
-            throw new RuntimeException("DTO 로 변환하는 과정에서 예외가 발생했습니다.", exception);
+            throw new RuntimeException(returnTypeClass.getName() + "의 데이터를 DTO 로 변환하는 과정에서 예외가 발생했습니다.", exception);
         }
     }
 }

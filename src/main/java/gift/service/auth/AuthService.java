@@ -37,8 +37,7 @@ public class AuthService {
     public AuthResponse register(RegisterRequest registerRequest) {
         emailValidation(registerRequest.email());
         var member = saveMemberWithMemberRequest(registerRequest);
-        var token = createAccessTokenWithMember(member);
-        return AuthResponse.of(token);
+        return createAuthResponseWithMember(member);
     }
 
     @Transactional(readOnly = true)
@@ -46,28 +45,25 @@ public class AuthService {
         var member = memberRepository.findByEmail(loginRequest.email())
                 .orElseThrow(() -> new InvalidLoginInfoException(loginRequest.email() + "를 가진 이용자가 존재하지 않습니다."));
         member.passwordCheck(loginRequest.password());
-        var token = createAccessTokenWithMember(member);
-        return AuthResponse.of(token);
+        return createAuthResponseWithMember(member);
     }
 
     public AuthResponse kakaoAuth(String code) {
         var kakaoAuthToken = kakaoApiService.getTokenWithCode(code);
         var kakaoAuthInformation = kakaoApiService.getAuthInformationWithToken(kakaoAuthToken.accessToken());
         var member = getMemberWithKakaoAuth(kakaoAuthInformation);
-        var token = createAccessTokenWithOAuth(member, kakaoAuthToken);
-        return AuthResponse.of(token);
+        return createAuthResponseWithOAuth(member, kakaoAuthToken);
     }
 
     public AuthResponse setKakaoTokenWithMember(Long memberId, String code) {
         var member = memberRepository.findById(memberId)
                 .orElseThrow(() -> new NotFoundElementException(memberId + "를 가진 이용자가 존재하지 않습니다."));
         var kakaoAuthToken = kakaoApiService.getTokenToSetWithCode(code);
-        var token = createAccessTokenWithOAuth(member, kakaoAuthToken);
-        return AuthResponse.of(token);
+        return createAuthResponseWithOAuth(member, kakaoAuthToken);
     }
 
-    private String createAccessTokenWithMember(Member member) {
-        return Jwts.builder()
+    private AuthResponse createAuthResponseWithMember(Member member) {
+        var token = Jwts.builder()
                 .subject(member.getId().toString())
                 .claim("name", member.getName())
                 .claim("role", member.getRole())
@@ -77,10 +73,11 @@ public class AuthService {
                 .expiration(new Date(System.currentTimeMillis() + jwtProperties.expiredTime()))
                 .signWith(Keys.hmacShaKeyFor(jwtProperties.secretKey().getBytes()))
                 .compact();
+        return AuthResponse.of(token);
     }
 
-    private String createAccessTokenWithOAuth(Member member, KakaoAuthToken kakaoAuthToken) {
-        return Jwts.builder()
+    private AuthResponse createAuthResponseWithOAuth(Member member, KakaoAuthToken kakaoAuthToken) {
+        var token = Jwts.builder()
                 .subject(member.getId().toString())
                 .claim("name", member.getName())
                 .claim("role", member.getRole())
@@ -90,6 +87,7 @@ public class AuthService {
                 .expiration(new Date(System.currentTimeMillis() + jwtProperties.expiredTime()))
                 .signWith(Keys.hmacShaKeyFor(jwtProperties.secretKey().getBytes()))
                 .compact();
+        return AuthResponse.of(token);
     }
 
     private void emailValidation(String email) {
