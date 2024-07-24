@@ -24,22 +24,23 @@ public class KakaoApiService {
         this.kakaoProperties = kakaoProperties;
     }
 
-    public KakaoAuthToken getTokenWithAuth(String code) {
-        var response = getTokenResponse(code, kakaoProperties.redirectUri());
-        return convertDtoWithJsonString(response, KakaoAuthToken.class);
-    }
-
-    public KakaoAuthToken getTokenWithAccess(String code) {
+    public KakaoAuthToken getKakaoAuthTokenToAccess(String code) {
         var response = getTokenResponse(code, kakaoProperties.tokenUri());
         return convertDtoWithJsonString(response, KakaoAuthToken.class);
     }
 
-    public KakaoAuthInformation getAuthInformationWithToken(String accessToken) {
+    public KakaoAuthInformation getAuthInformationWithToken(String code) {
+        var accessToken = getKakaoAuthTokenToAuth(code).accessToken();
         var response = getKakaoAuthResponse(accessToken);
         var kakaoAccount = convertDtoWithJsonString(response, KakaoAuthResponse.class).kakaoAccount();
         var name = kakaoAccount.profile().name();
         var email = kakaoAccount.email();
         return KakaoAuthInformation.of(name, email);
+    }
+
+    private KakaoAuthToken getKakaoAuthTokenToAuth(String code) {
+        var response = getTokenResponse(code, kakaoProperties.redirectUri());
+        return convertDtoWithJsonString(response, KakaoAuthToken.class);
     }
 
     private String getTokenResponse(String code, String redirectUri) {
