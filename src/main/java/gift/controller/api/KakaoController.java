@@ -1,7 +1,7 @@
 package gift.controller.api;
 
-import gift.client.KakaoApiClient;
 import gift.config.properties.KakaoProperties;
+import gift.service.auth.KakaoService;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -15,13 +15,13 @@ import java.net.URI;
 
 @RestController
 @RequestMapping("/api/kakao")
-public class KakaoApiController {
+public class KakaoController {
 
-    private final KakaoApiClient kakaoApiClient;
+    private final KakaoService kakaoService;
     private final KakaoProperties kakaoProperties;
 
-    public KakaoApiController(KakaoApiClient kakaoApiClient, KakaoProperties kakaoProperties) {
-        this.kakaoApiClient = kakaoApiClient;
+    public KakaoController(KakaoService kakaoService, KakaoProperties kakaoProperties) {
+        this.kakaoService = kakaoService;
         this.kakaoProperties = kakaoProperties;
     }
 
@@ -34,7 +34,7 @@ public class KakaoApiController {
     @GetMapping("/token")
     public ResponseEntity<Void> setToken(@RequestParam String code, @RequestParam String state) {
         var memberId = Long.valueOf(state);
-        kakaoApiClient.setKakaoAuthToken(memberId, code);
+        kakaoService.setKakaoToken(memberId, code);
         return ResponseEntity.noContent().build();
     }
 

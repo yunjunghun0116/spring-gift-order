@@ -3,9 +3,8 @@ package gift.client;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import gift.config.properties.KakaoProperties;
-import gift.dto.kakao.KakaoAuthInformation;
 import gift.dto.kakao.KakaoAuthResponse;
-import gift.dto.kakao.KakaoAuthToken;
+import gift.dto.kakao.KakaoTokenResponse;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Component;
 import org.springframework.util.LinkedMultiValueMap;
@@ -24,24 +23,7 @@ public class KakaoApiClient {
         this.kakaoProperties = kakaoProperties;
     }
 
-    public void setKakaoAuthToken(Long memberId, String code) {
-        var token = getTokenResponse(code, kakaoProperties.tokenUri());
-    }
-
-    public KakaoAuthToken getKakaoAuthTokenToRefresh(String refreshToken) {
-        return getRefreshedTokenResponse(refreshToken);
-    }
-
-    public KakaoAuthInformation getAuthInformation(String code) {
-        var kakaoToken = getTokenResponse(code, kakaoProperties.redirectUri());
-        var response = getKakaoAuthResponse(kakaoToken);
-        var kakaoAccount = response.kakaoAccount();
-        var name = kakaoAccount.profile().name();
-        var email = kakaoAccount.email();
-        return KakaoAuthInformation.of(name, email);
-    }
-
-    private KakaoAuthToken getTokenResponse(String code, String redirectUri) {
+    public KakaoTokenResponse getTokenResponse(String code, String redirectUri) {
         var url = "https://kauth.kakao.com/oauth/token";
         var body = new LinkedMultiValueMap<String, String>();
         body.add("grant_type", "authorization_code");
@@ -56,10 +38,10 @@ public class KakaoApiClient {
                 .retrieve()
                 .body(String.class);
 
-        return convertDtoWithJsonString(response, KakaoAuthToken.class);
+        return convertDtoWithJsonString(response, KakaoTokenResponse.class);
     }
 
-    private KakaoAuthToken getRefreshedTokenResponse(String refreshToken) {
+    public KakaoTokenResponse getRefreshedTokenResponse(String refreshToken) {
         var url = "https://kauth.kakao.com/oauth/token";
         var body = new LinkedMultiValueMap<String, String>();
         body.add("grant_type", "refresh_token");
@@ -73,12 +55,12 @@ public class KakaoApiClient {
                 .retrieve()
                 .body(String.class);
 
-        return convertDtoWithJsonString(response, KakaoAuthToken.class);
+        return convertDtoWithJsonString(response, KakaoTokenResponse.class);
     }
 
-    private KakaoAuthResponse getKakaoAuthResponse(KakaoAuthToken kakaoAuthToken) {
+    public KakaoAuthResponse getKakaoAuthResponse(KakaoTokenResponse kakaoTokenResponse) {
         var url = "https://kapi.kakao.com/v2/user/me";
-        var header = "Bearer " + kakaoAuthToken.accessToken();
+        var header = "Bearer " + kakaoTokenResponse.accessToken();
 
         var response = client.get()
                 .uri(URI.create(url))

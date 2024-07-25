@@ -1,6 +1,5 @@
 package gift.service.auth;
 
-import gift.client.KakaoApiClient;
 import gift.config.properties.JwtProperties;
 import gift.dto.auth.AuthResponse;
 import gift.dto.auth.LoginRequest;
@@ -24,12 +23,12 @@ import java.util.Date;
 public class AuthService {
 
     private final MemberRepository memberRepository;
-    private final KakaoApiClient kakaoApiClient;
+    private final KakaoService kakaoService;
     private final JwtProperties jwtProperties;
 
-    public AuthService(MemberRepository memberRepository, KakaoApiClient kakaoApiClient, JwtProperties jwtProperties) {
+    public AuthService(MemberRepository memberRepository, KakaoService kakaoService, JwtProperties jwtProperties) {
         this.memberRepository = memberRepository;
-        this.kakaoApiClient = kakaoApiClient;
+        this.kakaoService = kakaoService;
         this.jwtProperties = jwtProperties;
     }
 
@@ -47,8 +46,10 @@ public class AuthService {
     }
 
     public AuthResponse kakaoAuth(String code) {
-        var kakaoAuthInformation = kakaoApiClient.getAuthInformation(code);
+        var kakaoTokenResponse = kakaoService.getKakaoTokenResponse(code);
+        var kakaoAuthInformation = kakaoService.getKakaoAuthInformation(kakaoTokenResponse);
         var member = getMemberWithKakaoAuth(kakaoAuthInformation);
+        kakaoService.setKakaoToken(member, kakaoTokenResponse);
         return createAuthResponseWithMember(member);
     }
 
