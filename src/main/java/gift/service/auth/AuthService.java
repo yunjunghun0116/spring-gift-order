@@ -1,5 +1,6 @@
 package gift.service.auth;
 
+import gift.client.KakaoApiClient;
 import gift.config.properties.JwtProperties;
 import gift.dto.auth.AuthResponse;
 import gift.dto.auth.LoginRequest;
@@ -11,7 +12,6 @@ import gift.exception.NotFoundElementException;
 import gift.model.Member;
 import gift.model.MemberRole;
 import gift.repository.MemberRepository;
-import gift.service.api.KakaoApiService;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
 import org.springframework.stereotype.Service;
@@ -24,12 +24,12 @@ import java.util.Date;
 public class AuthService {
 
     private final MemberRepository memberRepository;
-    private final KakaoApiService kakaoApiService;
+    private final KakaoApiClient kakaoApiClient;
     private final JwtProperties jwtProperties;
 
-    public AuthService(MemberRepository memberRepository, KakaoApiService kakaoApiService, JwtProperties jwtProperties) {
+    public AuthService(MemberRepository memberRepository, KakaoApiClient kakaoApiClient, JwtProperties jwtProperties) {
         this.memberRepository = memberRepository;
-        this.kakaoApiService = kakaoApiService;
+        this.kakaoApiClient = kakaoApiClient;
         this.jwtProperties = jwtProperties;
     }
 
@@ -47,7 +47,7 @@ public class AuthService {
     }
 
     public AuthResponse kakaoAuth(String code) {
-        var kakaoAuthInformation = kakaoApiService.getAuthInformationWithToken(code);
+        var kakaoAuthInformation = kakaoApiClient.getAuthInformationWithToken(code);
         var member = getMemberWithKakaoAuth(kakaoAuthInformation);
         return createAuthResponseWithMember(member);
     }

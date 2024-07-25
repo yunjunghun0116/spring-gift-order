@@ -1,8 +1,8 @@
 package gift.controller.api;
 
+import gift.client.KakaoApiClient;
 import gift.config.properties.KakaoProperties;
 import gift.dto.kakao.KakaoAuthToken;
-import gift.service.api.KakaoApiService;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -17,39 +17,42 @@ import java.net.URI;
 @RequestMapping("/api/kakao")
 public class KakaoApiController {
 
-    private final KakaoApiService kakaoApiService;
+    private final KakaoApiClient kakaoApiClient;
     private final KakaoProperties kakaoProperties;
 
-    public KakaoApiController(KakaoApiService kakaoApiService, KakaoProperties kakaoProperties) {
-        this.kakaoApiService = kakaoApiService;
+    public KakaoApiController(KakaoApiClient kakaoApiClient, KakaoProperties kakaoProperties) {
+        this.kakaoApiClient = kakaoApiClient;
         this.kakaoProperties = kakaoProperties;
     }
 
     @GetMapping("/get-token")
-    public ResponseEntity<?> redirectGetToken() {
-        var headers = new HttpHeaders();
-        String redirectLocation = "https://kauth.kakao.com/oauth/authorize?response_type=code&client_id=" + kakaoProperties.restApiKey() + "&redirect_uri=" + kakaoProperties.tokenUri();
-        headers.setLocation(URI.create(redirectLocation));
+    public ResponseEntity<Void> redirectGetToken() {
+        var headers = getRedirectHeader(kakaoProperties.tokenUri());
         return new ResponseEntity<>(headers, HttpStatus.MOVED_PERMANENTLY);
     }
 
     @GetMapping("/token")
     public ResponseEntity<KakaoAuthToken> getToken(@RequestParam String code) {
-        var token = kakaoApiService.getKakaoAuthTokenToAccess(code);
+        var token = kakaoApiClient.getKakaoAuthTokenToAccess(code);
         return ResponseEntity.ok(token);
     }
 
     @GetMapping("/get-oauth")
-    public ResponseEntity<?> redirectOAuth() {
-        var headers = new HttpHeaders();
-        String redirectLocation = "https://kauth.kakao.com/oauth/authorize?response_type=code&client_id=" + kakaoProperties.restApiKey() + "&redirect_uri=" + kakaoProperties.redirectUri();
-        headers.setLocation(URI.create(redirectLocation));
+    public ResponseEntity<Void> redirectOAuth() {
+        var headers = getRedirectHeader(kakaoProperties.redirectUri());
         return new ResponseEntity<>(headers, HttpStatus.MOVED_PERMANENTLY);
     }
 
     @GetMapping("/token/refresh")
     public ResponseEntity<KakaoAuthToken> refreshToken(@RequestParam String refreshToken) {
-        var token = kakaoApiService.getKakaoAuthTokenToRefresh(refreshToken);
+        var token = kakaoApiClient.getKakaoAuthTokenToRefresh(refreshToken);
         return ResponseEntity.ok(token);
+    }
+
+    private HttpHeaders getRedirectHeader(String redirectUri) {
+        var headers = new HttpHeaders();
+        String redirectLocation = "https://kauth.kakao.com/oauth/authorize?response_type=code&client_id=" + kakaoProperties.restApiKey() + "&redirect_uri=" + redirectUri;
+        headers.setLocation(URI.create(redirectLocation));
+        return headers;
     }
 }
