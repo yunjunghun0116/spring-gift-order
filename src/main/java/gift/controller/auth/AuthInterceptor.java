@@ -3,6 +3,7 @@ package gift.controller.auth;
 import gift.config.properties.JwtProperties;
 import gift.exception.UnauthorizedAccessException;
 import gift.model.MemberRole;
+import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
 import jakarta.servlet.http.HttpServletRequest;
@@ -25,29 +26,24 @@ public class AuthInterceptor implements HandlerInterceptor {
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) {
         var header = getHeader(request);
         var token = getTokenWithAuthorizationHeader(header);
-        setMemberIdInAttribute(request, token);
-        setMemberRoleInAttribute(request, token);
+        var claims = getClaimsWithToken(token);
+        setMemberInformationWithClaims(request, claims);
         return true;
     }
 
-    private Long getMemberIdWithToken(String token) {
-        var id = Jwts.parser()
+    private Claims getClaimsWithToken(String token) {
+        return Jwts.parser()
                 .verifyWith(getSecretKey())
                 .build()
                 .parseSignedClaims(token)
-                .getPayload()
-                .getSubject();
-        return Long.parseLong(id);
+                .getPayload();
     }
 
-    private MemberRole getMemberRoleWithToken(String token) {
-        var role = Jwts.parser()
-                .verifyWith(getSecretKey())
-                .build()
-                .parseSignedClaims(token)
-                .getPayload()
-                .get("role");
-        return MemberRole.valueOf(role.toString());
+    private void setMemberInformationWithClaims(HttpServletRequest request, Claims claims) {
+        var memberId = Long.parseLong(claims.getSubject());
+        var memberRole = MemberRole.valueOf(claims.get("role").toString());
+        request.setAttribute("memberId", memberId);
+        request.setAttribute("memberRole", memberRole);
     }
 
     private String getTokenWithAuthorizationHeader(String authorizationHeader) {
@@ -60,16 +56,6 @@ public class AuthInterceptor implements HandlerInterceptor {
         var header = request.getHeader("Authorization");
         if (header == null) throw new UnauthorizedAccessException("인가되지 않은 요청입니다.");
         return header;
-    }
-
-    private void setMemberIdInAttribute(HttpServletRequest request, String token) {
-        var memberId = getMemberIdWithToken(token);
-        request.setAttribute("memberId", memberId);
-    }
-
-    private void setMemberRoleInAttribute(HttpServletRequest request, String token) {
-        var memberRole = getMemberRoleWithToken(token);
-        request.setAttribute("memberRole", memberRole);
     }
 
     private SecretKey getSecretKey() {

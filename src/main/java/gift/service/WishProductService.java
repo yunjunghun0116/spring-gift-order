@@ -1,9 +1,9 @@
 package gift.service;
 
-import gift.dto.ProductBasicInformation;
-import gift.dto.WishProductAddRequest;
-import gift.dto.WishProductResponse;
-import gift.dto.WishProductUpdateRequest;
+import gift.dto.product.ProductBasicInformation;
+import gift.dto.wishproduct.WishProductAddRequest;
+import gift.dto.wishproduct.WishProductResponse;
+import gift.dto.wishproduct.WishProductUpdateRequest;
 import gift.exception.NotFoundElementException;
 import gift.model.Member;
 import gift.model.Product;
@@ -37,19 +37,19 @@ public class WishProductService {
         var member = memberRepository.findById(memberId)
                 .orElseThrow(() -> new NotFoundElementException(memberId + "를 가진 멤버가 존재하지 않습니다."));
         if (wishProductRepository.existsByProductAndMember(product, member)) {
-            return updateWishProductWithProductAndMember(product, member, wishProductAddRequest.count());
+            return updateWishProductWithProductAndMember(product, member, wishProductAddRequest.quantity());
         }
-        var wishProduct = saveWishProductWithWishProductRequest(product, member, wishProductAddRequest.count());
+        var wishProduct = saveWishProductWithWishProductRequest(product, member, wishProductAddRequest.quantity());
         return getWishProductResponseFromWishProduct(wishProduct);
     }
 
     public void updateWishProduct(Long id, WishProductUpdateRequest wishProductUpdateRequest) {
         var wishProduct = findWishProductById(id);
-        if (wishProductUpdateRequest.count() == 0) {
+        if (wishProductUpdateRequest.quantity() == 0) {
             deleteWishProduct(id);
             return;
         }
-        updateWishProductWithCount(wishProduct, wishProductUpdateRequest.count());
+        updateWishProductWithQuantity(wishProduct, wishProductUpdateRequest.quantity());
     }
 
     @Transactional(readOnly = true)
@@ -75,21 +75,21 @@ public class WishProductService {
         wishProductRepository.deleteAllByMemberId(memberId);
     }
 
-    private WishProduct saveWishProductWithWishProductRequest(Product product, Member member, Integer count) {
-        var wishProduct = new WishProduct(product, member, count);
+    private WishProduct saveWishProductWithWishProductRequest(Product product, Member member, Integer quantity) {
+        var wishProduct = new WishProduct(product, member, quantity);
         return wishProductRepository.save(wishProduct);
     }
 
-    private WishProductResponse updateWishProductWithProductAndMember(Product product, Member member, Integer count) {
+    private WishProductResponse updateWishProductWithProductAndMember(Product product, Member member, Integer quantity) {
         var wishProduct = wishProductRepository.findByProductAndMember(product, member)
                 .orElseThrow(() -> new NotFoundElementException(product.getId() + "를 가진 상품과, " + member.getId() + "를 가진 멤버를 가진 위시 리스트가 존재하지 않습니다."));
-        var updatedCount = wishProduct.getCount() + count;
-        var updatedWishProduct = updateWishProductWithCount(wishProduct, updatedCount);
+        var updateQuantity = wishProduct.getQuantity() + quantity;
+        var updatedWishProduct = updateWishProductWithQuantity(wishProduct, updateQuantity);
         return getWishProductResponseFromWishProduct(updatedWishProduct);
     }
 
-    private WishProduct updateWishProductWithCount(WishProduct wishProduct, Integer count) {
-        wishProduct.updateCount(count);
+    private WishProduct updateWishProductWithQuantity(WishProduct wishProduct, Integer updateQuantity) {
+        wishProduct.updateQuantity(updateQuantity);
         wishProductRepository.save(wishProduct);
         return wishProduct;
     }
@@ -97,7 +97,7 @@ public class WishProductService {
     private WishProductResponse getWishProductResponseFromWishProduct(WishProduct wishProduct) {
         var product = wishProduct.getProduct();
         var productBasicInformation = ProductBasicInformation.of(product.getId(), product.getName(), product.getPrice());
-        return WishProductResponse.of(wishProduct.getId(), productBasicInformation, wishProduct.getCount());
+        return WishProductResponse.of(wishProduct.getId(), productBasicInformation, wishProduct.getQuantity());
     }
 
     private WishProduct findWishProductById(Long id) {

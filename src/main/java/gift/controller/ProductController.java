@@ -1,7 +1,7 @@
 package gift.controller;
 
-import gift.dto.ProductRequest;
-import gift.dto.ProductResponse;
+import gift.dto.product.ProductRequest;
+import gift.dto.product.ProductResponse;
 import gift.model.MemberRole;
 import gift.service.ProductService;
 import jakarta.validation.Valid;

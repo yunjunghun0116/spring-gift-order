@@ -1,7 +1,7 @@
 package gift.service;
 
-import gift.dto.WishProductAddRequest;
-import gift.dto.WishProductUpdateRequest;
+import gift.dto.wishproduct.WishProductAddRequest;
+import gift.dto.wishproduct.WishProductUpdateRequest;
 import gift.exception.NotFoundElementException;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
@@ -47,7 +47,7 @@ class WishProductServiceTest {
 
     @Test
     @DisplayName("위시리스트 수량 0으로 변경하기")
-    void successUpdateWishProductWithZeroCount() {
+    void successUpdateWishProductWithZeroQuantity() {
         //given
         var wishProductAddRequest = new WishProductAddRequest(1L, 5);
         var wishProduct = wishProductService.addWishProduct(wishProductAddRequest, 1L);
@@ -97,7 +97,7 @@ class WishProductServiceTest {
         //then
         var wishProducts = wishProductService.getWishProducts(1L, PageRequest.of(0, 10));
         Assertions.assertThat(wishProducts.size()).isEqualTo(1);
-        Assertions.assertThat(wishProducts.get(0).count()).isEqualTo(10);
+        Assertions.assertThat(wishProducts.get(0).quantity()).isEqualTo(10);
 
         wishProductService.deleteWishProduct(wishProduct.id());
     }

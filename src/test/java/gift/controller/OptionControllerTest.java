@@ -1,8 +1,8 @@
 package gift.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import gift.dto.LoginRequest;
-import gift.dto.OptionAddRequest;
+import gift.dto.auth.LoginRequest;
+import gift.dto.option.OptionAddRequest;
 import gift.service.OptionService;
 import gift.service.auth.AuthService;
 import org.junit.jupiter.api.BeforeEach;

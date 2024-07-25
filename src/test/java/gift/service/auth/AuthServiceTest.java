@@ -1,7 +1,7 @@
 package gift.service.auth;
 
-import gift.dto.LoginRequest;
-import gift.dto.RegisterRequest;
+import gift.dto.auth.LoginRequest;
+import gift.dto.auth.RegisterRequest;
 import gift.exception.DuplicatedEmailException;
 import gift.exception.InvalidLoginInfoException;
 import gift.model.MemberRole;

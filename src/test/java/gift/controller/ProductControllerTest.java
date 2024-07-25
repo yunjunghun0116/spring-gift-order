@@ -2,9 +2,9 @@ package gift.controller;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import gift.dto.LoginRequest;
-import gift.dto.ProductRequest;
-import gift.dto.ProductResponse;
+import gift.dto.auth.LoginRequest;
+import gift.dto.product.ProductRequest;
+import gift.dto.product.ProductResponse;
 import gift.model.MemberRole;
 import gift.service.OptionService;
 import gift.service.ProductService;

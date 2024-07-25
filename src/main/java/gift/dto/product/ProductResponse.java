@@ -1,4 +1,6 @@
-package gift.dto;
+package gift.dto.product;
+
+import gift.dto.category.CategoryInformation;
 
 public record ProductResponse(Long id, String name, Integer price, String imageUrl,
                               CategoryInformation categoryInformation) {

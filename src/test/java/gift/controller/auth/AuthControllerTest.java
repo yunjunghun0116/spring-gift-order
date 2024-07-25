@@ -1,8 +1,8 @@
 package gift.controller.auth;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import gift.dto.LoginRequest;
-import gift.dto.RegisterRequest;
+import gift.dto.auth.LoginRequest;
+import gift.dto.auth.RegisterRequest;
 import gift.reflection.AuthTestReflectionComponent;
 import gift.service.MemberService;
 import gift.service.auth.AuthService;

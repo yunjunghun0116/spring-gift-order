@@ -1,7 +1,7 @@
 package gift.service;
 
-import gift.dto.CategoryRequest;
-import gift.dto.CategoryResponse;
+import gift.dto.category.CategoryRequest;
+import gift.dto.category.CategoryResponse;
 import gift.exception.DuplicatedNameException;
 import gift.exception.NotFoundElementException;
 import gift.model.Category;

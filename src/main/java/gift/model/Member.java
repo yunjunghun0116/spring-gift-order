@@ -1,5 +1,6 @@
 package gift.model;
 
+import gift.exception.InvalidLoginInfoException;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Enumerated;
@@ -33,6 +34,13 @@ public class Member extends BaseEntity {
     protected Member() {
     }
 
+    public Member(String name, String email, MemberRole role) {
+        this.name = name;
+        this.email = email;
+        this.password = "SOCIAL";
+        this.role = role;
+    }
+
     public Member(String name, String email, String password, MemberRole role) {
         this.name = name;
         this.email = email;
@@ -50,5 +58,11 @@ public class Member extends BaseEntity {
 
     public MemberRole getRole() {
         return role;
+    }
+
+    public void passwordCheck(String inputPassword) {
+        if (!password.equals(inputPassword)) {
+            throw new InvalidLoginInfoException("로그인 정보가 유효하지 않습니다.");
+        }
     }
 }

@@ -1,8 +1,8 @@
 package gift.controller;
 
-import gift.dto.WishProductAddRequest;
-import gift.dto.WishProductResponse;
-import gift.dto.WishProductUpdateRequest;
+import gift.dto.wishproduct.WishProductAddRequest;
+import gift.dto.wishproduct.WishProductResponse;
+import gift.dto.wishproduct.WishProductUpdateRequest;
 import gift.service.WishProductService;
 import jakarta.validation.Valid;
 import org.springframework.data.domain.Pageable;

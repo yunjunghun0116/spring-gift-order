@@ -27,7 +27,3 @@ values ('50000원 상품권', 50000,
 
 insert into option(product_id, name, quantity, deleted)
 values (3, '상품옵션', 10000, 0);
-
-
-
-

@@ -24,8 +24,8 @@ public class WishProduct extends BaseEntity {
     @JoinColumn(name = "member_id", referencedColumnName = "id")
     private Member member;
     @NotNull
-    @Column(name = "count")
-    private Integer count;
+    @Column(name = "quantity")
+    private Integer quantity;
     @NotNull
     @Column(name = "deleted")
     private Boolean deleted = Boolean.FALSE;
@@ -33,10 +33,10 @@ public class WishProduct extends BaseEntity {
     protected WishProduct() {
     }
 
-    public WishProduct(Product product, Member member, Integer count) {
+    public WishProduct(Product product, Member member, Integer quantity) {
         this.product = product;
         this.member = member;
-        this.count = count;
+        this.quantity = quantity;
     }
 
     public Product getProduct() {
@@ -47,11 +47,11 @@ public class WishProduct extends BaseEntity {
         return member;
     }
 
-    public Integer getCount() {
-        return count;
+    public Integer getQuantity() {
+        return quantity;
     }
 
-    public void updateCount(Integer count) {
-        this.count = count;
+    public void updateQuantity(Integer updateQuantity) {
+        this.quantity = updateQuantity;
     }
 }

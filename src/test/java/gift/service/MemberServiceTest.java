@@ -1,7 +1,7 @@
 package gift.service;
 
-import gift.dto.LoginRequest;
-import gift.dto.RegisterRequest;
+import gift.dto.auth.LoginRequest;
+import gift.dto.auth.RegisterRequest;
 import gift.exception.InvalidLoginInfoException;
 import gift.reflection.AuthTestReflectionComponent;
 import gift.service.auth.AuthService;

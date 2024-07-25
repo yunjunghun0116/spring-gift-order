@@ -1,7 +1,7 @@
 package gift.controller;
 
-import gift.dto.CategoryRequest;
-import gift.dto.CategoryResponse;
+import gift.dto.category.CategoryRequest;
+import gift.dto.category.CategoryResponse;
 import gift.service.CategoryService;
 import jakarta.validation.Valid;
 import org.springframework.data.domain.Pageable;

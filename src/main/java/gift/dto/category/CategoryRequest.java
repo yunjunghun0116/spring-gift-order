@@ -1,4 +1,4 @@
-package gift.dto;
+package gift.dto.category;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
