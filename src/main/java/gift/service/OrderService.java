@@ -17,15 +17,26 @@ public class OrderService {
 
     private final OrderRepository orderRepository;
     private final MemberRepository memberRepository;
+    private final WishProductService wishProductService;
 
-    public OrderService(OrderRepository orderRepository, MemberRepository memberRepository) {
+    public OrderService(OrderRepository orderRepository, MemberRepository memberRepository, WishProductService wishProductService) {
         this.orderRepository = orderRepository;
         this.memberRepository = memberRepository;
+        this.wishProductService = wishProductService;
     }
 
     public OrderResponse addOrder(Long memberId, Option option, OrderRequest orderRequest) {
         var order = saveOrderWithOrderRequest(memberId, option, orderRequest);
+        wishProductService.deleteAllByMemberIdAndProductId(memberId, option.getProduct().getId());
         return getOrderResponseFromOrder(order);
+    }
+
+    public void deleteAllByOptionId(Long optionId) {
+        orderRepository.deleteAllByOptionId(optionId);
+    }
+
+    public void deleteAllByMemberId(Long memberId) {
+        orderRepository.deleteAllByMemberId(memberId);
     }
 
     private Order saveOrderWithOrderRequest(Long memberId, Option option, OrderRequest orderRequest) {

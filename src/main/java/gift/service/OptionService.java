@@ -55,6 +55,7 @@ public class OptionService {
         if (!optionRepository.existsById(optionId)) {
             throw new NotFoundElementException("존재하지 않는 상품 옵션의 ID 입니다.");
         }
+        orderService.deleteAllByOptionId(optionId);
         optionRepository.deleteById(optionId);
     }
 
