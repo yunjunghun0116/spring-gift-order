@@ -3,6 +3,7 @@ package gift.model;
 import gift.exception.InvalidLoginInfoException;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotNull;
@@ -24,7 +25,7 @@ public class Member extends BaseEntity {
     @Column(name = "password")
     private String password;
     @NotNull
-    @Enumerated
+    @Enumerated(value = EnumType.STRING)
     @Column(name = "role")
     private MemberRole role;
     @NotNull
