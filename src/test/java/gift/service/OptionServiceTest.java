@@ -1,8 +1,8 @@
 package gift.service;
 
 import gift.dto.option.OptionAddRequest;
-import gift.dto.option.OptionSubtractRequest;
 import gift.dto.option.OptionUpdateRequest;
+import gift.dto.order.OrderRequest;
 import gift.exception.BadRequestException;
 import gift.exception.DuplicatedNameException;
 import org.assertj.core.api.Assertions;
@@ -94,9 +94,9 @@ class OptionServiceTest {
         //given
         var optionRequest = new OptionAddRequest("옵션1", 0, 1L);
         var savedOption = optionService.addOption(optionRequest);
-        var optionSubtractRequest = new OptionSubtractRequest(1);
+        var orderRequest = new OrderRequest(savedOption.id(), 1, "hello");
         //when, then
-        Assertions.assertThatThrownBy(() -> optionService.subtractOptionQuantity(savedOption.id(), optionSubtractRequest)).isInstanceOf(BadRequestException.class);
+        Assertions.assertThatThrownBy(() -> optionService.orderOption(savedOption.id(), orderRequest)).isInstanceOf(BadRequestException.class);
 
         optionService.deleteOption(savedOption.id());
     }
@@ -105,7 +105,7 @@ class OptionServiceTest {
     @DisplayName("동시성 테스트 - 500개의 쓰레드풀에 10000개의 요청을 보냈을 때에도 정상적으로 요청이 처리 된다.")
     public void concurrencyTest() throws InterruptedException {
         //given
-        var subtractOptionRequest = new OptionSubtractRequest(1);
+        var orderRequest = new OrderRequest(1L, 1, "hello");
         int requestCount = 10000;
         var executorService = Executors.newFixedThreadPool(500);
         var countDownLatch = new CountDownLatch(requestCount);
@@ -113,7 +113,7 @@ class OptionServiceTest {
         for (int i = 0; i < requestCount; i++) {
             executorService.execute(() -> {
                 try {
-                    optionService.subtractOptionQuantity(1L, subtractOptionRequest);
+                    optionService.orderOption(1L, orderRequest);
                 } finally {
                     countDownLatch.countDown();
                 }

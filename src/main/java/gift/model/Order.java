@@ -37,6 +37,22 @@ public class Order extends BaseEntity {
     protected Order() {
     }
 
+    public Member getMember() {
+        return member;
+    }
+
+    public Option getOption() {
+        return option;
+    }
+
+    public Integer getQuantity() {
+        return quantity;
+    }
+
+    public String getMessage() {
+        return message;
+    }
+
     public Order(Member member, Option option, Integer quantity, String message) {
         this.member = member;
         this.option = option;

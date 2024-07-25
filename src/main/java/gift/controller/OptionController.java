@@ -2,8 +2,9 @@ package gift.controller;
 
 import gift.dto.option.OptionAddRequest;
 import gift.dto.option.OptionResponse;
-import gift.dto.option.OptionSubtractRequest;
 import gift.dto.option.OptionUpdateRequest;
+import gift.dto.order.OrderRequest;
+import gift.dto.order.OrderResponse;
 import gift.service.OptionService;
 import jakarta.validation.Valid;
 import org.springframework.data.domain.Pageable;
@@ -15,6 +16,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestAttribute;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -39,10 +41,10 @@ public class OptionController {
         return ResponseEntity.created(URI.create("/api/options/" + option.id())).build();
     }
 
-    @PostMapping("/subtract/{id}")
-    public ResponseEntity<Void> subtractOptionQuantity(@PathVariable Long id, @RequestBody OptionSubtractRequest optionSubtractRequest) {
-        optionService.subtractOptionQuantity(id, optionSubtractRequest);
-        return ResponseEntity.noContent().build();
+    @PostMapping("/order")
+    public ResponseEntity<OrderResponse> addOrder(@RequestAttribute("memberId") Long memberId, @Valid @RequestBody OrderRequest orderRequest) {
+        var order = optionService.orderOption(memberId, orderRequest);
+        return ResponseEntity.ok(order);
     }
 
     @PutMapping("/update/{id}")

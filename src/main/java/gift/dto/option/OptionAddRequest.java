@@ -13,7 +13,7 @@ public record OptionAddRequest(
         @NotBlank(message = "이름의 길이는 최소 1자 이상이어야 합니다.")
         String name,
         @Min(value = 1, message = "수량은 최소 1개 이상, 1억개 미만입니다.")
-        @Max(value = 100000000, message = "수량은 최소 1개 이상, 1억개 미만입니다.")
+        @Max(value = 100_000_000, message = "수량은 최소 1개 이상, 1억개 미만입니다.")
         Integer quantity,
         @NotNull(message = "상품은 반드시 선택되어야 합니다.")
         Long productId) {
