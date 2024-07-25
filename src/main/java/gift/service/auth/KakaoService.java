@@ -4,6 +4,7 @@ import gift.client.KakaoApiClient;
 import gift.config.properties.KakaoProperties;
 import gift.dto.kakao.KakaoAuthInformation;
 import gift.dto.kakao.KakaoTokenResponse;
+import gift.exception.InvalidKakaoTokenException;
 import gift.exception.NotFoundElementException;
 import gift.model.KakaoToken;
 import gift.model.Member;
@@ -39,16 +40,15 @@ public class KakaoService {
         saveKakaoToken(member, kakaoTokenResponse);
     }
 
-    public void saveKakaoToken(Member member, KakaoTokenResponse kakaoTokenResponse) {
+    public KakaoToken saveKakaoToken(Member member, KakaoTokenResponse kakaoTokenResponse) {
         if (kakaoTokenRepository.existsByMemberId(member.getId())) {
             var kakaoToken = kakaoTokenRepository.findByMemberId(member.getId())
-                    .orElseThrow(() -> new NotFoundElementException(member.getId() + "를 가진 이용자의 카카오 토큰 정보가 존재하지 않습니다."));
+                    .orElseThrow(() -> new InvalidKakaoTokenException(member.getId() + "를 가진 이용자의 카카오 토큰 정보가 존재하지 않습니다."));
             kakaoToken.updateToken(kakaoTokenResponse);
-            kakaoTokenRepository.save(kakaoToken);
-            return;
+            return kakaoTokenRepository.save(kakaoToken);
         }
         var kakaoToken = new KakaoToken(member, kakaoTokenResponse.accessToken(), kakaoTokenResponse.refreshToken());
-        kakaoTokenRepository.save(kakaoToken);
+        return kakaoTokenRepository.save(kakaoToken);
     }
 
     public KakaoAuthInformation getKakaoAuthInformation(KakaoTokenResponse kakaoTokenResponse) {
@@ -59,13 +59,11 @@ public class KakaoService {
         return KakaoAuthInformation.of(name, email);
     }
 
-    public void sendMessageToSelf() {
-        // get AccessToken -> findByMemberId
-        // 만약 없으면 redirect -> set-token으로
-        // 있으면 token유효한지 검사 -> 토큰 유효해?
-        // 유효하면 그대로 사용, 유효하지 않으면 refresh요청
-        // 만약 refresh기한 넘어갔으면 set-token으로 redirect
-        // 다 됐으면 이제 message send
+    public void sendMessageToSelf(Long memberId) {
+        var kakaoToken = kakaoTokenRepository.findByMemberId(memberId)
+                .orElseThrow(() -> new InvalidKakaoTokenException(memberId + "를 가진 이용자의 카카오 토큰 정보가 존재하지 않습니다."));
+        var validatedKakaoToken = tokenValidation(kakaoToken);
+        // 다 됐으면 이제 message send 이 토큰을 가지고 send하기
     }
 
     public void deleteByMemberId(Long memberId) {
@@ -73,7 +71,13 @@ public class KakaoService {
         kakaoTokenRepository.deleteByMemberId(memberId);
     }
 
-    private void tokenValidation(KakaoToken kakaoToken) {
-
+    private KakaoToken tokenValidation(KakaoToken kakaoToken) {
+        try {
+            kakaoApiClient.canUseKakaoAccessToken(kakaoToken.getAccessToken());
+        } catch (InvalidKakaoTokenException exception) {
+            var kakaoTokenResponse = kakaoApiClient.getRefreshedTokenResponse(kakaoToken.getRefreshToken());
+            kakaoToken = saveKakaoToken(kakaoToken.getMember(), kakaoTokenResponse);
+        }
+        return kakaoToken;
     }
 }

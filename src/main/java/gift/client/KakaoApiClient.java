@@ -76,6 +76,18 @@ public class KakaoApiClient {
         return convertDtoWithJsonString(response, KakaoAuthResponse.class);
     }
 
+    public void canUseKakaoAccessToken(String accessToken) {
+        var url = "https://kapi.kakao.com/v1/user/access_token_info";
+        var header = "Bearer " + accessToken;
+
+        client.get()
+                .uri(URI.create(url))
+                .header("Authorization", header)
+                .retrieve().onStatus(statusCode -> statusCode.equals(HttpStatus.UNAUTHORIZED), (req, res) -> {
+                    throw new InvalidKakaoTokenException(accessToken + "이 유효하지 않습니다. AccessToken 의 갱신이 필요합니다.");
+                });
+    }
+
     private <T> T convertDtoWithJsonString(String response, Class<T> returnTypeClass) {
         try {
             return objectMapper.readValue(response, returnTypeClass);
