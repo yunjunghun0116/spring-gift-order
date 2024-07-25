@@ -5,6 +5,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import gift.config.properties.KakaoProperties;
 import gift.dto.kakao.KakaoAuthResponse;
 import gift.dto.kakao.KakaoTokenResponse;
+import gift.exception.InvalidKakaoTokenException;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Component;
 import org.springframework.util.LinkedMultiValueMap;
@@ -53,6 +55,9 @@ public class KakaoApiClient {
                 .contentType(MediaType.APPLICATION_FORM_URLENCODED)
                 .body(body)
                 .retrieve()
+                .onStatus(statusCode -> statusCode.equals(HttpStatus.UNAUTHORIZED), (req, res) -> {
+                    throw new InvalidKakaoTokenException("유효하지 않은 토큰값입니다. 갱신이 필요합니다.");
+                })
                 .body(String.class);
 
         return convertDtoWithJsonString(response, KakaoTokenResponse.class);

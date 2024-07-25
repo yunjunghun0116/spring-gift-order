@@ -2,6 +2,7 @@ package gift.exception;
 
 import io.jsonwebtoken.ExpiredJwtException;
 import org.springframework.data.mapping.PropertyReferenceException;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
@@ -9,6 +10,8 @@ import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+
+import java.net.URI;
 
 @RestControllerAdvice
 public class GlobalExceptionHandler {
@@ -55,6 +58,14 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(value = ExpiredJwtException.class)
     public ResponseEntity<String> expiredJwtExceptionHandling() {
         return new ResponseEntity<>(EXPIRED_JWT_MESSAGE, HttpStatus.UNAUTHORIZED);
+    }
+
+    @ExceptionHandler(value = InvalidKakaoTokenException.class)
+    public ResponseEntity<Void> invalidKakaoTokenExceptionHandling() {
+        var headers = new HttpHeaders();
+        String redirectLocation = "http://localhost:8080/api/kakao/set-token";
+        headers.setLocation(URI.create(redirectLocation));
+        return new ResponseEntity<>(headers, HttpStatus.MOVED_PERMANENTLY);
     }
 
     @ExceptionHandler(value = BadRequestException.class)

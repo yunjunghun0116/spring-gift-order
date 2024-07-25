@@ -49,7 +49,7 @@ public class AuthService {
         var kakaoTokenResponse = kakaoService.getKakaoTokenResponse(code);
         var kakaoAuthInformation = kakaoService.getKakaoAuthInformation(kakaoTokenResponse);
         var member = getMemberWithKakaoAuth(kakaoAuthInformation);
-        kakaoService.setKakaoToken(member, kakaoTokenResponse);
+        kakaoService.saveKakaoToken(member, kakaoTokenResponse);
         return createAuthResponseWithMember(member);
     }
 

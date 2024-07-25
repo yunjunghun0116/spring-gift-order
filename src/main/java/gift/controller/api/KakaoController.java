@@ -34,7 +34,7 @@ public class KakaoController {
     @GetMapping("/token")
     public ResponseEntity<Void> setToken(@RequestParam String code, @RequestParam String state) {
         var memberId = Long.valueOf(state);
-        kakaoService.setKakaoToken(memberId, code);
+        kakaoService.saveKakaoToken(memberId, code);
         return ResponseEntity.noContent().build();
     }
 
