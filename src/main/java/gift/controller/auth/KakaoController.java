@@ -1,4 +1,4 @@
-package gift.controller.api;
+package gift.controller.auth;
 
 import gift.config.properties.KakaoProperties;
 import gift.service.auth.KakaoService;
