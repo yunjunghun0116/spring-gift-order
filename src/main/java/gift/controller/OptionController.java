@@ -6,6 +6,7 @@ import gift.dto.option.OptionUpdateRequest;
 import gift.dto.order.OrderRequest;
 import gift.dto.order.OrderResponse;
 import gift.service.OptionService;
+import gift.service.auth.KakaoService;
 import jakarta.validation.Valid;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -31,8 +32,11 @@ public class OptionController {
 
     private final OptionService optionService;
 
-    public OptionController(OptionService optionService) {
+    private final KakaoService kakaoService;
+
+    public OptionController(OptionService optionService, KakaoService kakaoService) {
         this.optionService = optionService;
+        this.kakaoService = kakaoService;
     }
 
     @PostMapping("/add")
@@ -42,8 +46,9 @@ public class OptionController {
     }
 
     @PostMapping("/order")
-    public ResponseEntity<OrderResponse> addOrder(@RequestAttribute("memberId") Long memberId, @Valid @RequestBody OrderRequest orderRequest) {
+    public ResponseEntity<OrderResponse> orderOption(@RequestAttribute("memberId") Long memberId, @Valid @RequestBody OrderRequest orderRequest) {
         var order = optionService.orderOption(memberId, orderRequest);
+        kakaoService.sendSelfMessageOrder(memberId, order);
         return ResponseEntity.ok(order);
     }
 

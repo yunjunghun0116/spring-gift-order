@@ -5,6 +5,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import gift.config.properties.KakaoProperties;
 import gift.dto.kakao.KakaoAuthResponse;
 import gift.dto.kakao.KakaoTokenResponse;
+import gift.dto.order.OrderResponse;
+import gift.exception.BadRequestException;
 import gift.exception.InvalidKakaoTokenException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -13,6 +15,7 @@ import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.web.client.RestClient;
 
 import java.net.URI;
+import java.util.HashMap;
 
 @Component
 public class KakaoApiClient {
@@ -86,6 +89,43 @@ public class KakaoApiClient {
                 .retrieve().onStatus(statusCode -> statusCode.equals(HttpStatus.UNAUTHORIZED), (req, res) -> {
                     throw new InvalidKakaoTokenException(accessToken + "이 유효하지 않습니다. AccessToken 의 갱신이 필요합니다.");
                 });
+    }
+
+    public void sendSelfMessageOrder(String accessToken, OrderResponse orderResponse) {
+        try {
+            var url = "https://kapi.kakao.com/v2/api/talk/memo/default/send";
+            var header = "Bearer " + accessToken;
+
+            var template_object = new HashMap<String, Object>();
+            template_object.put("object_type", "commerce");
+
+            var content = new HashMap<String, Object>();
+            content.put("title", orderResponse.message());
+            content.put("image_url", "https://img1.kakaocdn.net/thumb/C320x320@2x.fwebp.q82/?fname=https%3A%2F%2Fst.kakaocdn.net%2Fproduct%2Fgift%2Fproduct%2F20240417111629_616eccb9d4cd464fa06d3430947dce15.jpg");
+            content.put("description", orderResponse.message());
+            var link = new HashMap<String, Object>();
+            link.put("web_url", "https://gift.kakao.com/product/2370524");
+            content.put("link", link);
+            template_object.put("content", content);
+
+            var commerce = new HashMap<String, Object>();
+            commerce.put("product_name", orderResponse.optionInformation().productName() + "[" + orderResponse.optionInformation().name() + "]");
+            commerce.put("regular_price", orderResponse.optionInformation().price() * orderResponse.quantity());
+            template_object.put("commerce", commerce);
+
+            var body = new LinkedMultiValueMap<String, Object>();
+            body.add("template_object", objectMapper.writeValueAsString(template_object));
+
+            client.post()
+                    .uri(URI.create(url))
+                    .header("Authorization", header)
+                    .contentType(MediaType.APPLICATION_FORM_URLENCODED)
+                    .body(body)
+                    .retrieve()
+                    .body(String.class);
+        } catch (JsonProcessingException exception) {
+            throw new BadRequestException("잘못된 입력으로 인해 JSON 파싱에 실패했습니다" + exception.getMessage());
+        }
     }
 
     private <T> T convertDtoWithJsonString(String response, Class<T> returnTypeClass) {

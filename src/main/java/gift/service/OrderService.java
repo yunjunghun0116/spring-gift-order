@@ -36,7 +36,7 @@ public class OrderService {
     }
 
     private OrderResponse getOrderResponseFromOrder(Order order) {
-        var optionInformation = OptionInformation.of(order.getId(), order.getOption().getProduct().getName(), order.getOption().getName());
+        var optionInformation = OptionInformation.of(order.getId(), order.getOption().getProduct().getName(), order.getOption().getProduct().getPrice(), order.getOption().getName());
         return OrderResponse.of(order.getId(), optionInformation, order.getQuantity(), order.getCreatedDate(), order.getMessage());
     }
 }
