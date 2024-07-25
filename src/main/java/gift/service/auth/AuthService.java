@@ -47,7 +47,7 @@ public class AuthService {
     }
 
     public AuthResponse kakaoAuth(String code) {
-        var kakaoAuthInformation = kakaoApiClient.getAuthInformationWithToken(code);
+        var kakaoAuthInformation = kakaoApiClient.getAuthInformation(code);
         var member = getMemberWithKakaoAuth(kakaoAuthInformation);
         return createAuthResponseWithMember(member);
     }

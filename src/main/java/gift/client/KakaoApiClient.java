@@ -24,25 +24,21 @@ public class KakaoApiClient {
         this.kakaoProperties = kakaoProperties;
     }
 
-    public KakaoAuthToken getKakaoAuthTokenToAccess(String code) {
-        return getTokenResponse(code, kakaoProperties.tokenUri());
+    public void setKakaoAuthToken(Long memberId, String code) {
+        var token = getTokenResponse(code, kakaoProperties.tokenUri());
     }
 
     public KakaoAuthToken getKakaoAuthTokenToRefresh(String refreshToken) {
         return getRefreshedTokenResponse(refreshToken);
     }
 
-    public KakaoAuthInformation getAuthInformationWithToken(String code) {
-        var accessToken = getKakaoAuthTokenToAuth(code).accessToken();
-        var response = getKakaoAuthResponse(accessToken);
+    public KakaoAuthInformation getAuthInformation(String code) {
+        var kakaoToken = getTokenResponse(code, kakaoProperties.redirectUri());
+        var response = getKakaoAuthResponse(kakaoToken);
         var kakaoAccount = response.kakaoAccount();
         var name = kakaoAccount.profile().name();
         var email = kakaoAccount.email();
         return KakaoAuthInformation.of(name, email);
-    }
-
-    private KakaoAuthToken getKakaoAuthTokenToAuth(String code) {
-        return getTokenResponse(code, kakaoProperties.redirectUri());
     }
 
     private KakaoAuthToken getTokenResponse(String code, String redirectUri) {
@@ -80,9 +76,9 @@ public class KakaoApiClient {
         return convertDtoWithJsonString(response, KakaoAuthToken.class);
     }
 
-    private KakaoAuthResponse getKakaoAuthResponse(String accessToken) {
+    private KakaoAuthResponse getKakaoAuthResponse(KakaoAuthToken kakaoAuthToken) {
         var url = "https://kapi.kakao.com/v2/user/me";
-        var header = "Bearer " + accessToken;
+        var header = "Bearer " + kakaoAuthToken.accessToken();
 
         var response = client.get()
                 .uri(URI.create(url))
