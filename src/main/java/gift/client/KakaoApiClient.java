@@ -23,6 +23,7 @@ public class KakaoApiClient {
     private final RestClient client = RestClient.builder().build();
     private final KakaoProperties kakaoProperties;
     private final ObjectMapper objectMapper = new ObjectMapper();
+    private final String INVALID_KAKAO_TOKEN_MESSAGE = "유효하지 않은 토큰입니다. 갱신이 필요합니다.";
 
     public KakaoApiClient(KakaoProperties kakaoProperties) {
         this.kakaoProperties = kakaoProperties;
@@ -59,7 +60,10 @@ public class KakaoApiClient {
                 .body(body)
                 .retrieve()
                 .onStatus(statusCode -> statusCode.equals(HttpStatus.UNAUTHORIZED), (req, res) -> {
-                    throw new InvalidKakaoTokenException("유효하지 않은 토큰값입니다. 갱신이 필요합니다.");
+                    throw new InvalidKakaoTokenException(INVALID_KAKAO_TOKEN_MESSAGE);
+                })
+                .onStatus(statusCode -> statusCode.equals(HttpStatus.BAD_REQUEST), (req, res) -> {
+                    throw new InvalidKakaoTokenException(INVALID_KAKAO_TOKEN_MESSAGE);
                 })
                 .body(String.class);
 
@@ -86,9 +90,14 @@ public class KakaoApiClient {
         client.get()
                 .uri(URI.create(url))
                 .header("Authorization", header)
-                .retrieve().onStatus(statusCode -> statusCode.equals(HttpStatus.UNAUTHORIZED), (req, res) -> {
-                    throw new InvalidKakaoTokenException(accessToken + "이 유효하지 않습니다. AccessToken 의 갱신이 필요합니다.");
-                });
+                .retrieve()
+                .onStatus(statusCode -> statusCode.equals(HttpStatus.UNAUTHORIZED), (req, res) -> {
+                    throw new InvalidKakaoTokenException(INVALID_KAKAO_TOKEN_MESSAGE);
+                })
+                .onStatus(statusCode -> statusCode.equals(HttpStatus.BAD_REQUEST), (req, res) -> {
+                    throw new InvalidKakaoTokenException(INVALID_KAKAO_TOKEN_MESSAGE);
+                })
+                .body(String.class);
     }
 
     public void sendSelfMessageOrder(String accessToken, OrderResponse orderResponse) {
@@ -122,7 +131,9 @@ public class KakaoApiClient {
                     .contentType(MediaType.APPLICATION_FORM_URLENCODED)
                     .body(body)
                     .retrieve()
-                    .body(String.class);
+                    .onStatus(statusCode -> statusCode.equals(HttpStatus.UNAUTHORIZED), (req, res) -> {
+                        throw new InvalidKakaoTokenException(INVALID_KAKAO_TOKEN_MESSAGE);
+                    });
         } catch (JsonProcessingException exception) {
             throw new BadRequestException("잘못된 입력으로 인해 JSON 파싱에 실패했습니다" + exception.getMessage());
         }
