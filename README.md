@@ -37,6 +37,15 @@
 - 토큰 요청 URL : http://localhost:8080/api/kakao/get-token (JWT 필요)
 - 토큰 갱신 요청 URL : http://localhost:8080/api/kakao/token/refresh (JWT 필요)
 
+#### 2단계
+
+- [X] 카카오의 AccessToken, RefreshToken 을 서버에서 적절히 관리한다.
+- [X] 주문할 때 수령인에게 보낼 메시지를 작성할 수 있다.
+- [X] 상품 옵션과 해당 수량을 선택하여 주문하면 해당 상품 옵션의 수량이 차감된다.
+- [X] 해당 상품이 위시 리스트에 있는 경우 위시 리스트에서 삭제한다.
+- [X] 주문 내역을 카카오톡 메시지로 전송한다.
+- [X] Mockito 를 사용하여 카카오 로그인 테스트를 진행한다.
+
 ### 나만의 HTTP RULE
 
 | HTTP Method | 사용상황                           | 반환(상태코드) |

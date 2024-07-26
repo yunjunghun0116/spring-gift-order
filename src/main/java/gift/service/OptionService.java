@@ -2,8 +2,9 @@ package gift.service;
 
 import gift.dto.option.OptionAddRequest;
 import gift.dto.option.OptionResponse;
-import gift.dto.option.OptionSubtractRequest;
 import gift.dto.option.OptionUpdateRequest;
+import gift.dto.order.OrderRequest;
+import gift.dto.order.OrderResponse;
 import gift.exception.DuplicatedNameException;
 import gift.exception.NotFoundElementException;
 import gift.model.Option;
@@ -22,11 +23,12 @@ public class OptionService {
 
     private final OptionRepository optionRepository;
     private final ProductRepository productRepository;
+    private final OrderService orderService;
 
-
-    public OptionService(OptionRepository optionRepository, ProductRepository productRepository) {
+    public OptionService(OptionRepository optionRepository, ProductRepository productRepository, OrderService orderService) {
         this.optionRepository = optionRepository;
         this.productRepository = productRepository;
+        this.orderService = orderService;
     }
 
     public OptionResponse addOption(OptionAddRequest optionAddRequest) {
@@ -53,6 +55,7 @@ public class OptionService {
         if (!optionRepository.existsById(optionId)) {
             throw new NotFoundElementException("존재하지 않는 상품 옵션의 ID 입니다.");
         }
+        orderService.deleteAllByOptionId(optionId);
         optionRepository.deleteById(optionId);
     }
 
@@ -65,11 +68,16 @@ public class OptionService {
         optionRepository.save(option);
     }
 
-    public void subtractOptionQuantity(Long id, OptionSubtractRequest optionSubtractRequest) {
+    public OrderResponse orderOption(Long memberId, OrderRequest orderRequest) {
+        var option = subtractOptionQuantity(orderRequest.optionId(), orderRequest.quantity());
+        return orderService.addOrder(memberId, option, orderRequest);
+    }
+
+    private Option subtractOptionQuantity(Long id, Integer quantity) {
         var option = optionRepository.findByIdWithLock(id)
                 .orElseThrow(() -> new NotFoundElementException(id + "를 가진 상품 옵션이 존재하지 않습니다."));
-        option.subtract(optionSubtractRequest.quantity());
-        optionRepository.save(option);
+        option.subtract(quantity);
+        return optionRepository.save(option);
     }
 
     private Option saveOptionWithOptionRequest(OptionAddRequest optionAddRequest) {

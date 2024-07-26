@@ -11,7 +11,6 @@ import gift.exception.NotFoundElementException;
 import gift.model.Member;
 import gift.model.MemberRole;
 import gift.repository.MemberRepository;
-import gift.service.api.KakaoApiService;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
 import org.springframework.stereotype.Service;
@@ -24,12 +23,12 @@ import java.util.Date;
 public class AuthService {
 
     private final MemberRepository memberRepository;
-    private final KakaoApiService kakaoApiService;
+    private final KakaoService kakaoService;
     private final JwtProperties jwtProperties;
 
-    public AuthService(MemberRepository memberRepository, KakaoApiService kakaoApiService, JwtProperties jwtProperties) {
+    public AuthService(MemberRepository memberRepository, KakaoService kakaoService, JwtProperties jwtProperties) {
         this.memberRepository = memberRepository;
-        this.kakaoApiService = kakaoApiService;
+        this.kakaoService = kakaoService;
         this.jwtProperties = jwtProperties;
     }
 
@@ -47,8 +46,10 @@ public class AuthService {
     }
 
     public AuthResponse kakaoAuth(String code) {
-        var kakaoAuthInformation = kakaoApiService.getAuthInformationWithToken(code);
+        var kakaoTokenResponse = kakaoService.getKakaoTokenResponse(code);
+        var kakaoAuthInformation = kakaoService.getKakaoAuthInformation(kakaoTokenResponse);
         var member = getMemberWithKakaoAuth(kakaoAuthInformation);
+        kakaoService.saveKakaoToken(member, kakaoTokenResponse);
         return createAuthResponseWithMember(member);
     }
 
@@ -77,16 +78,19 @@ public class AuthService {
     }
 
     private Member saveMemberWithKakaoAuth(KakaoAuthInformation kakaoAuthInformation) {
-        emailValidation(kakaoAuthInformation.email());
         var member = new Member(kakaoAuthInformation.name(), kakaoAuthInformation.email(), MemberRole.MEMBER);
         return memberRepository.save(member);
     }
 
     private Member getMemberWithKakaoAuth(KakaoAuthInformation kakaoAuthInformation) {
-        if (memberRepository.existsByEmail(kakaoAuthInformation.email())) {
-            return memberRepository.findByEmail(kakaoAuthInformation.email())
-                    .orElseThrow(() -> new NotFoundElementException(kakaoAuthInformation.email() + "을 가진 이용자가 존재하지 않습니다."));
+        if (!memberRepository.existsByEmail(kakaoAuthInformation.email())) {
+            return saveMemberWithKakaoAuth(kakaoAuthInformation);
         }
-        return saveMemberWithKakaoAuth(kakaoAuthInformation);
+        var member = memberRepository.findByEmail(kakaoAuthInformation.email())
+                .orElseThrow(() -> new NotFoundElementException(kakaoAuthInformation.email() + "을 가진 이용자가 존재하지 않습니다."));
+        if (!member.getPassword().equals("SOCIAL")) {
+            throw new DuplicatedEmailException("이미 존재하는 이메일입니다.");
+        }
+        return member;
     }
 }
