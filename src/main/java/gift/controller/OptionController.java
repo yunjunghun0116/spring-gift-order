@@ -4,7 +4,6 @@ import gift.dto.option.OptionAddRequest;
 import gift.dto.option.OptionResponse;
 import gift.dto.option.OptionUpdateRequest;
 import gift.dto.order.OrderRequest;
-import gift.dto.order.OrderResponse;
 import gift.service.OptionService;
 import gift.service.auth.KakaoService;
 import jakarta.validation.Valid;
@@ -46,10 +45,10 @@ public class OptionController {
     }
 
     @PostMapping("/order")
-    public ResponseEntity<OrderResponse> orderOption(@RequestAttribute("memberId") Long memberId, @Valid @RequestBody OrderRequest orderRequest) {
+    public ResponseEntity<Void> orderOption(@RequestAttribute("memberId") Long memberId, @Valid @RequestBody OrderRequest orderRequest) {
         var order = optionService.orderOption(memberId, orderRequest);
         kakaoService.sendSelfMessageOrder(memberId, order);
-        return ResponseEntity.ok(order);
+        return ResponseEntity.created(URI.create("/api/orders/" + order.id())).build();
     }
 
     @PutMapping("/update/{id}")
