@@ -8,8 +8,11 @@ import gift.model.Option;
 import gift.model.Order;
 import gift.repository.MemberRepository;
 import gift.repository.OrderRepository;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
 
 @Service
 @Transactional
@@ -29,6 +32,21 @@ public class OrderService {
         var order = saveOrderWithOrderRequest(memberId, option, orderRequest);
         wishProductService.deleteAllByMemberIdAndProductId(memberId, option.getProduct().getId());
         return getOrderResponseFromOrder(order);
+    }
+
+    @Transactional(readOnly = true)
+    public OrderResponse getOrder(Long id) {
+        var order = orderRepository.findById(id)
+                .orElseThrow(() -> new NotFoundElementException(id + "를 가진 주문이 존재하지 않습니다."));
+        return getOrderResponseFromOrder(order);
+    }
+
+    @Transactional(readOnly = true)
+    public List<OrderResponse> getOrders(Long memberId, Pageable pageable) {
+        return orderRepository.findAllByMemberId(memberId, pageable)
+                .stream()
+                .map(this::getOrderResponseFromOrder)
+                .toList();
     }
 
     public void deleteAllByOptionId(Long optionId) {
