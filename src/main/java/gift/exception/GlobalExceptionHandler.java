@@ -61,7 +61,7 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(value = InvalidKakaoTokenException.class)
-    public ResponseEntity<Void> invalidKakaoTokenExceptionHandling(InvalidKakaoTokenException exception) {
+    public ResponseEntity<Void> invalidKakaoTokenExceptionHandling() {
         var headers = new HttpHeaders();
         String redirectLocation = "http://localhost:8080/api/kakao/set-token";
         headers.setLocation(URI.create(redirectLocation));
