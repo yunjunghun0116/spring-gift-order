@@ -78,16 +78,19 @@ public class AuthService {
     }
 
     private Member saveMemberWithKakaoAuth(KakaoAuthInformation kakaoAuthInformation) {
-        emailValidation(kakaoAuthInformation.email());
         var member = new Member(kakaoAuthInformation.name(), kakaoAuthInformation.email(), MemberRole.MEMBER);
         return memberRepository.save(member);
     }
 
     private Member getMemberWithKakaoAuth(KakaoAuthInformation kakaoAuthInformation) {
-        if (memberRepository.existsByEmail(kakaoAuthInformation.email())) {
-            return memberRepository.findByEmail(kakaoAuthInformation.email())
-                    .orElseThrow(() -> new NotFoundElementException(kakaoAuthInformation.email() + "을 가진 이용자가 존재하지 않습니다."));
+        if (!memberRepository.existsByEmail(kakaoAuthInformation.email())) {
+            return saveMemberWithKakaoAuth(kakaoAuthInformation);
         }
-        return saveMemberWithKakaoAuth(kakaoAuthInformation);
+        var member = memberRepository.findByEmail(kakaoAuthInformation.email())
+                .orElseThrow(() -> new NotFoundElementException(kakaoAuthInformation.email() + "을 가진 이용자가 존재하지 않습니다."));
+        if (!member.getPassword().equals("SOCIAL")) {
+            throw new DuplicatedEmailException("이미 존재하는 이메일입니다.");
+        }
+        return member;
     }
 }

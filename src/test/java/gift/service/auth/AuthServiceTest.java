@@ -120,8 +120,8 @@ class AuthServiceTest {
     }
 
     @Test
-    @DisplayName("카카오 회원가입하기")
-    void successKakaoLogin() {
+    @DisplayName("카카오 회원가입하기 - 성공")
+    void successKakaoRegister() {
         //given
         var code = "인가코드";
         //when
@@ -134,5 +134,35 @@ class AuthServiceTest {
         Assertions.assertThat(id).isNotNull();
 
         memberService.deleteMember(id);
+    }
+
+    @Test
+    @DisplayName("카카오 회원가입하기 - 실패")
+    void failKakaoRegisterExistsEmail() {
+        //given
+        var registerRequest = new RegisterRequest("MOCK", "MOCK@naver.com", "testPassword", "MEMBER");
+        var auth = authService.register(registerRequest);
+        var code = "인가코드";
+        //when, then
+        Assertions.assertThatThrownBy(() -> authService.kakaoAuth(code)).isInstanceOf(DuplicatedEmailException.class);
+
+        var id = authTestReflectionComponent.getMemberIdWithToken(auth.token());
+        memberService.deleteMember(id);
+    }
+
+    @Test
+    @DisplayName("카카오 로그인하기 - 성공")
+    void successKakaoLogin() {
+        //given
+        var code = "인가코드";
+        var auth = authService.kakaoAuth(code);
+        var memberId = authTestReflectionComponent.getMemberIdWithToken(auth.token());
+        //when
+        var loginAuth = authService.kakaoAuth(code);
+        var loginMemberId = authTestReflectionComponent.getMemberIdWithToken(loginAuth.token());
+
+        Assertions.assertThat(memberId).isEqualTo(loginMemberId);
+
+        memberService.deleteMember(memberId);
     }
 }
