@@ -5,6 +5,10 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import gift.config.properties.KakaoProperties;
 import gift.dto.kakao.KakaoAuthResponse;
 import gift.dto.kakao.KakaoTokenResponse;
+import gift.dto.kakao.template.KakaoTemplate;
+import gift.dto.kakao.template.KakaoTemplateCommerce;
+import gift.dto.kakao.template.KakaoTemplateContent;
+import gift.dto.kakao.template.KakaoTemplateLink;
 import gift.dto.order.OrderResponse;
 import gift.exception.BadRequestException;
 import gift.exception.InvalidKakaoTokenException;
@@ -15,7 +19,6 @@ import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.web.client.RestClient;
 
 import java.net.URI;
-import java.util.HashMap;
 
 @Component
 public class KakaoApiClient {
@@ -104,26 +107,10 @@ public class KakaoApiClient {
         try {
             var url = "https://kapi.kakao.com/v2/api/talk/memo/default/send";
             var header = "Bearer " + accessToken;
-
-            var template_object = new HashMap<String, Object>();
-            template_object.put("object_type", "commerce");
-
-            var content = new HashMap<String, Object>();
-            content.put("title", orderResponse.message());
-            content.put("image_url", "https://img1.kakaocdn.net/thumb/C320x320@2x.fwebp.q82/?fname=https%3A%2F%2Fst.kakaocdn.net%2Fproduct%2Fgift%2Fproduct%2F20240417111629_616eccb9d4cd464fa06d3430947dce15.jpg");
-            content.put("description", orderResponse.message());
-            var link = new HashMap<String, Object>();
-            link.put("web_url", "https://gift.kakao.com/product/2370524");
-            content.put("link", link);
-            template_object.put("content", content);
-
-            var commerce = new HashMap<String, Object>();
-            commerce.put("product_name", orderResponse.optionInformation().productName() + "[" + orderResponse.optionInformation().name() + "]");
-            commerce.put("regular_price", orderResponse.optionInformation().price() * orderResponse.quantity());
-            template_object.put("commerce", commerce);
-
+            
+            var template = getCommerceTemplate(orderResponse);
             var body = new LinkedMultiValueMap<String, Object>();
-            body.add("template_object", objectMapper.writeValueAsString(template_object));
+            body.add("template_object", objectMapper.writeValueAsString(template));
 
             client.post()
                     .uri(URI.create(url))
@@ -133,7 +120,8 @@ public class KakaoApiClient {
                     .retrieve()
                     .onStatus(statusCode -> statusCode.equals(HttpStatus.UNAUTHORIZED), (req, res) -> {
                         throw new InvalidKakaoTokenException(INVALID_KAKAO_TOKEN_MESSAGE);
-                    });
+                    })
+                    .body(String.class);
         } catch (JsonProcessingException exception) {
             throw new BadRequestException("잘못된 입력으로 인해 JSON 파싱에 실패했습니다" + exception.getMessage());
         }
@@ -145,5 +133,13 @@ public class KakaoApiClient {
         } catch (JsonProcessingException exception) {
             throw new RuntimeException(returnTypeClass.getName() + "의 데이터를 DTO 로 변환하는 과정에서 예외가 발생했습니다.", exception);
         }
+    }
+
+    private KakaoTemplate getCommerceTemplate(OrderResponse orderResponse) {
+        var objectType = "commerce";
+        var link = new KakaoTemplateLink("https://gift.kakao.com/product/2370524");
+        var content = new KakaoTemplateContent(orderResponse.message(), "https://img1.kakaocdn.net/thumb/C320x320@2x.fwebp.q82/?fname=https%3A%2F%2Fst.kakaocdn.net%2Fproduct%2Fgift%2Fproduct%2F20240417111629_616eccb9d4cd464fa06d3430947dce15.jpg", orderResponse.message(), link);
+        var commerce = new KakaoTemplateCommerce(orderResponse.optionInformation().productName() + "[" + orderResponse.optionInformation().name() + "]", orderResponse.optionInformation().price() * orderResponse.quantity());
+        return new KakaoTemplate(objectType, content, commerce);
     }
 }
