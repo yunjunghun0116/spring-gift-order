@@ -5,11 +5,7 @@ import gift.dto.auth.LoginRequest;
 import gift.dto.auth.RegisterRequest;
 import gift.dto.kakao.KakaoAuthInformation;
 import gift.dto.kakao.KakaoTokenResponse;
-<<<<<<< HEAD
 import gift.dto.order.GiftOrderResponse;
-=======
-import gift.dto.order.OrderResponse;
->>>>>>> 9163eeb2096015767247c44386a11ad4d8a30af6
 import gift.exception.DuplicatedEmailException;
 import gift.exception.InvalidLoginInfoException;
 import gift.model.KakaoToken;
@@ -48,11 +44,7 @@ class AuthServiceTest {
     void mockKakaoServiceSetUp() {
         authService = new AuthService(memberRepository, kakaoService, jwtProperties);
         Mockito.doNothing().when(kakaoService).saveKakaoToken(any(Long.class), any(String.class));
-<<<<<<< HEAD
         Mockito.doNothing().when(kakaoService).sendSelfMessageOrder(any(Long.class), any(GiftOrderResponse.class));
-=======
-        Mockito.doNothing().when(kakaoService).sendSelfMessageOrder(any(Long.class), any(OrderResponse.class));
->>>>>>> 9163eeb2096015767247c44386a11ad4d8a30af6
         Mockito.doNothing().when(kakaoService).deleteByMemberId(any(Long.class));
 
         var mockMember = new Member("MOCK", "MOCK@naver.com", MemberRole.MEMBER);
