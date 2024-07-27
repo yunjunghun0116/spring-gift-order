@@ -1,8 +1,8 @@
 package gift.service;
 
+import gift.dto.giftorder.GiftOrderRequest;
+import gift.dto.giftorder.GiftOrderResponse;
 import gift.dto.option.OptionInformation;
-import gift.dto.order.GiftOrderRequest;
-import gift.dto.order.GiftOrderResponse;
 import gift.exception.NotFoundElementException;
 import gift.model.GiftOrder;
 import gift.model.Option;

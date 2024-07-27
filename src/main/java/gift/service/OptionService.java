@@ -1,10 +1,10 @@
 package gift.service;
 
+import gift.dto.giftorder.GiftOrderRequest;
+import gift.dto.giftorder.GiftOrderResponse;
 import gift.dto.option.OptionAddRequest;
 import gift.dto.option.OptionResponse;
 import gift.dto.option.OptionUpdateRequest;
-import gift.dto.order.GiftOrderRequest;
-import gift.dto.order.GiftOrderResponse;
 import gift.exception.DuplicatedNameException;
 import gift.exception.NotFoundElementException;
 import gift.model.Option;

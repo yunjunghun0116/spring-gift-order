@@ -1,11 +1,11 @@
 package gift.controller;
 
+import gift.dto.giftorder.GiftOrderRequest;
 import gift.dto.option.OptionAddRequest;
 import gift.dto.option.OptionResponse;
 import gift.dto.option.OptionUpdateRequest;
-import gift.dto.order.GiftOrderRequest;
+import gift.service.KakaoService;
 import gift.service.OptionService;
-import gift.service.auth.KakaoService;
 import jakarta.validation.Valid;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;

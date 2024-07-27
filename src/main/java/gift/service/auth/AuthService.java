@@ -12,6 +12,7 @@ import gift.model.Member;
 import gift.model.MemberRole;
 import gift.model.OauthType;
 import gift.repository.MemberRepository;
+import gift.service.KakaoService;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
 import org.springframework.stereotype.Service;

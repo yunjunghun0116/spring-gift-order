@@ -2,7 +2,6 @@ package gift.service;
 
 import gift.exception.NotFoundElementException;
 import gift.repository.MemberRepository;
-import gift.service.auth.KakaoService;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 

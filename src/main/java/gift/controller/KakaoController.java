@@ -1,7 +1,7 @@
-package gift.controller.auth;
+package gift.controller;
 
 import gift.config.properties.KakaoProperties;
-import gift.service.auth.KakaoService;
+import gift.service.KakaoService;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;

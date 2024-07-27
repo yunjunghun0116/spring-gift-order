@@ -1,6 +1,6 @@
 package gift.controller;
 
-import gift.dto.order.GiftOrderResponse;
+import gift.dto.giftorder.GiftOrderResponse;
 import gift.service.GiftOrderService;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;

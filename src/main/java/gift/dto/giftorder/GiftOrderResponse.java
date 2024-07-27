@@ -1,4 +1,4 @@
-package gift.dto.order;
+package gift.dto.giftorder;
 
 import gift.dto.option.OptionInformation;
 

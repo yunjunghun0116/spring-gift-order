@@ -1,8 +1,8 @@
 package gift.service;
 
+import gift.dto.giftorder.GiftOrderRequest;
 import gift.dto.option.OptionAddRequest;
 import gift.dto.option.OptionUpdateRequest;
-import gift.dto.order.GiftOrderRequest;
 import gift.exception.BadRequestException;
 import gift.exception.DuplicatedNameException;
 import org.assertj.core.api.Assertions;
