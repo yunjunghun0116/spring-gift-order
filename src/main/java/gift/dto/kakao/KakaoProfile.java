@@ -6,6 +6,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 @JsonIgnoreProperties(ignoreUnknown = true)
 public record KakaoProfile(
         @JsonProperty("nickname")
-        String name) {
+        String name
+) {
 }
 

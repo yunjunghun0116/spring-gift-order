@@ -16,5 +16,6 @@ public record ProductRequest(
         @NotBlank(message = "상품 이미지는 필수로 입력해야 합니다.")
         String imageUrl,
         @NotNull(message = "상품 카테고리는 반드시 선택되어야 합니다.")
-        Long categoryId) {
+        Long categoryId
+) {
 }

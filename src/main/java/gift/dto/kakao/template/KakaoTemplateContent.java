@@ -12,6 +12,7 @@ public record KakaoTemplateContent(
         @JsonProperty("description")
         String description,
         @JsonProperty("link")
-        KakaoTemplateLink link) {
+        KakaoTemplateLink link
+) {
 }
 

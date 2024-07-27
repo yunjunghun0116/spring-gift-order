@@ -8,6 +8,7 @@ public record KakaoAccount(
         @JsonProperty("profile")
         KakaoProfile profile,
         @JsonProperty("email")
-        String email) {
+        String email
+) {
 }
 

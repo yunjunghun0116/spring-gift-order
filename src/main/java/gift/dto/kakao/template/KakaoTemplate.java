@@ -10,6 +10,7 @@ public record KakaoTemplate(
         @JsonProperty("content")
         KakaoTemplateContent content,
         @JsonProperty("commerce")
-        KakaoTemplateCommerce commerce) {
+        KakaoTemplateCommerce commerce
+) {
 }
 

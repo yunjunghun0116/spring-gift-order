@@ -6,6 +6,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 @JsonIgnoreProperties(ignoreUnknown = true)
 public record KakaoAuthResponse(
         @JsonProperty("kakao_account")
-        KakaoAccount kakaoAccount) {
+        KakaoAccount kakaoAccount
+) {
 }
 

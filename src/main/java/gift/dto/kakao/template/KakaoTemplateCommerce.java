@@ -8,6 +8,7 @@ public record KakaoTemplateCommerce(
         @JsonProperty("product_name")
         String productName,
         @JsonProperty("regular_price")
-        Integer regularPrice) {
+        Integer regularPrice
+) {
 }
 

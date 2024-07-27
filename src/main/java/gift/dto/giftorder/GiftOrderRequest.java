@@ -12,5 +12,6 @@ public record GiftOrderRequest(
         @Max(value = 100_000_000, message = "수량은 최소 1개 이상, 1억개 미만입니다.")
         Integer quantity,
         @NotBlank(message = "메시지의 길이는 최소 1자 이상이어야 합니다.")
-        String message) {
+        String message
+) {
 }

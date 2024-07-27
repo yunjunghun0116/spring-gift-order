@@ -13,5 +13,6 @@ public record RegisterRequest(
         @Pattern(regexp = "^[0-9a-zA-Z\\-\\_\\+\\!\\*\\@\\#\\$\\%\\^\\&\\(\\)\\.]{8,}$", message = "허용되지 않은 형식의 패스워드입니다.")
         String password,
         @Pattern(regexp = "^(MEMBER|ADMIN)$", message = "존재하지 않는 회원 타입입니다.")
-        String role) {
+        String role
+) {
 }

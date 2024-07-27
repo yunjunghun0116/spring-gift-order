@@ -13,5 +13,6 @@ public record OptionUpdateRequest(
         String name,
         @Min(value = 1, message = "수량은 최소 1개 이상, 1억개 미만입니다.")
         @Max(value = 100_000_000, message = "수량은 최소 1개 이상, 1억개 미만입니다.")
-        Integer quantity) {
+        Integer quantity
+) {
 }
