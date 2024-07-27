@@ -7,10 +7,11 @@ import gift.dto.kakao.KakaoTokenResponse;
 import gift.dto.order.GiftOrderResponse;
 import gift.exception.InvalidKakaoTokenException;
 import gift.exception.NotFoundElementException;
-import gift.model.KakaoToken;
 import gift.model.Member;
-import gift.repository.KakaoTokenRepository;
+import gift.model.OauthToken;
+import gift.model.OauthType;
 import gift.repository.MemberRepository;
+import gift.repository.OauthTokenRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -19,13 +20,13 @@ import org.springframework.transaction.annotation.Transactional;
 public class KakaoService {
 
     private final MemberRepository memberRepository;
-    private final KakaoTokenRepository kakaoTokenRepository;
+    private final OauthTokenRepository oauthTokenRepository;
     private final KakaoApiClient kakaoApiClient;
     private final KakaoProperties kakaoProperties;
 
-    public KakaoService(MemberRepository memberRepository, KakaoTokenRepository kakaoTokenRepository, KakaoApiClient kakaoApiClient, KakaoProperties kakaoProperties) {
+    public KakaoService(MemberRepository memberRepository, OauthTokenRepository oauthTokenRepository, KakaoApiClient kakaoApiClient, KakaoProperties kakaoProperties) {
         this.memberRepository = memberRepository;
-        this.kakaoTokenRepository = kakaoTokenRepository;
+        this.oauthTokenRepository = oauthTokenRepository;
         this.kakaoApiClient = kakaoApiClient;
         this.kakaoProperties = kakaoProperties;
     }
@@ -41,15 +42,15 @@ public class KakaoService {
         saveKakaoToken(member, kakaoTokenResponse);
     }
 
-    public KakaoToken saveKakaoToken(Member member, KakaoTokenResponse kakaoTokenResponse) {
-        if (kakaoTokenRepository.existsByMemberId(member.getId())) {
-            var kakaoToken = kakaoTokenRepository.findByMemberId(member.getId())
+    public OauthToken saveKakaoToken(Member member, KakaoTokenResponse kakaoTokenResponse) {
+        if (oauthTokenRepository.existsByMemberId(member.getId())) {
+            var kakaoToken = oauthTokenRepository.findByMemberId(member.getId())
                     .orElseThrow(() -> new InvalidKakaoTokenException(member.getId() + "를 가진 이용자의 카카오 토큰 정보가 존재하지 않습니다."));
-            kakaoToken.updateToken(kakaoTokenResponse.accessToken(), kakaoTokenResponse.refreshToken());
-            return kakaoTokenRepository.save(kakaoToken);
+            kakaoToken.updateToken(kakaoTokenResponse.accessToken(), kakaoTokenResponse.accessTokenExpiresIn(), kakaoTokenResponse.refreshToken(), kakaoTokenResponse.refreshTokenExpiresIn());
+            return oauthTokenRepository.save(kakaoToken);
         }
-        var kakaoToken = new KakaoToken(member, kakaoTokenResponse.accessToken(), kakaoTokenResponse.refreshToken());
-        return kakaoTokenRepository.save(kakaoToken);
+        var kakaoToken = new OauthToken(member, OauthType.KAKAO, kakaoTokenResponse.accessToken(), kakaoTokenResponse.accessTokenExpiresIn(), kakaoTokenResponse.refreshToken(), kakaoTokenResponse.refreshTokenExpiresIn());
+        return oauthTokenRepository.save(kakaoToken);
     }
 
     public KakaoAuthInformation getKakaoAuthInformation(KakaoTokenResponse kakaoTokenResponse) {
@@ -61,24 +62,25 @@ public class KakaoService {
     }
 
     public void sendSelfMessageOrder(Long memberId, GiftOrderResponse giftOrderResponse) {
-        var kakaoToken = kakaoTokenRepository.findByMemberId(memberId)
+        var kakaoToken = oauthTokenRepository.findByMemberId(memberId)
                 .orElseThrow(() -> new InvalidKakaoTokenException(memberId + "를 가진 이용자의 카카오 토큰 정보가 존재하지 않습니다."));
         var validatedKakaoToken = tokenValidation(kakaoToken);
         kakaoApiClient.sendSelfMessageOrder(validatedKakaoToken.getAccessToken(), giftOrderResponse);
     }
 
     public void deleteByMemberId(Long memberId) {
-        if (!kakaoTokenRepository.existsByMemberId(memberId)) return;
-        kakaoTokenRepository.deleteByMemberId(memberId);
+        if (!oauthTokenRepository.existsByMemberId(memberId)) return;
+        oauthTokenRepository.deleteByMemberId(memberId);
     }
 
-    private KakaoToken tokenValidation(KakaoToken kakaoToken) {
-        try {
-            kakaoApiClient.canUseKakaoAccessToken(kakaoToken.getAccessToken());
-        } catch (InvalidKakaoTokenException exception) {
-            var kakaoTokenResponse = kakaoApiClient.getRefreshedTokenResponse(kakaoToken.getRefreshToken());
-            kakaoToken = saveKakaoToken(kakaoToken.getMember(), kakaoTokenResponse);
+    private OauthToken tokenValidation(OauthToken oauthToken) {
+        if (!oauthToken.canUseRefreshToken()) {
+            throw new InvalidKakaoTokenException("유효하지 않은 토큰입니다. 갱신이 필요합니다.");
         }
-        return kakaoToken;
+        if (!oauthToken.canUseAccessToken()) {
+            var kakaoTokenResponse = kakaoApiClient.getRefreshedTokenResponse(oauthToken.getRefreshToken());
+            oauthToken = saveKakaoToken(oauthToken.getMember(), kakaoTokenResponse);
+        }
+        return oauthToken;
     }
 }

@@ -85,23 +85,6 @@ public class KakaoApiClient {
         return convertDtoWithJsonString(response, KakaoAuthResponse.class);
     }
 
-    public void canUseKakaoAccessToken(String accessToken) {
-        var url = "https://kapi.kakao.com/v1/user/access_token_info";
-        var header = "Bearer " + accessToken;
-
-        client.get()
-                .uri(URI.create(url))
-                .header("Authorization", header)
-                .retrieve()
-                .onStatus(statusCode -> statusCode.equals(HttpStatus.UNAUTHORIZED), (req, res) -> {
-                    throw new InvalidKakaoTokenException(INVALID_TOKEN_MESSAGE);
-                })
-                .onStatus(statusCode -> statusCode.equals(HttpStatus.BAD_REQUEST), (req, res) -> {
-                    throw new InvalidKakaoTokenException(INVALID_TOKEN_MESSAGE);
-                })
-                .body(String.class);
-    }
-
     public void sendSelfMessageOrder(String accessToken, GiftOrderResponse giftOrderResponse) {
         try {
             var url = "https://kapi.kakao.com/v2/api/talk/memo/default/send";

@@ -35,10 +35,10 @@ public class Member extends BaseEntity {
     protected Member() {
     }
 
-    public Member(String name, String email, MemberRole role) {
+    public Member(String name, String email, MemberRole role, OauthType oauthType) {
         this.name = name;
         this.email = email;
-        this.password = "SOCIAL";
+        this.password = oauthType.name();
         this.role = role;
     }
 

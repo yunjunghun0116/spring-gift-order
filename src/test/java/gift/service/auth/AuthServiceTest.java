@@ -8,9 +8,10 @@ import gift.dto.kakao.KakaoTokenResponse;
 import gift.dto.order.GiftOrderResponse;
 import gift.exception.DuplicatedEmailException;
 import gift.exception.InvalidLoginInfoException;
-import gift.model.KakaoToken;
 import gift.model.Member;
 import gift.model.MemberRole;
+import gift.model.OauthToken;
+import gift.model.OauthType;
 import gift.reflection.AuthTestReflectionComponent;
 import gift.repository.MemberRepository;
 import gift.service.MemberService;
@@ -47,9 +48,9 @@ class AuthServiceTest {
         Mockito.doNothing().when(kakaoService).sendSelfMessageOrder(any(Long.class), any(GiftOrderResponse.class));
         Mockito.doNothing().when(kakaoService).deleteByMemberId(any(Long.class));
 
-        var mockMember = new Member("MOCK", "MOCK@naver.com", MemberRole.MEMBER);
-        var mockKakaoTokenResponse = new KakaoTokenResponse("ACCESSTOKEN", "REFRESHTOKEN");
-        var mockKakaoToken = new KakaoToken(mockMember, "ACCESSTOKEN", "REFRESHTOKEN");
+        var mockMember = new Member("MOCK", "MOCK@naver.com", MemberRole.MEMBER, OauthType.KAKAO);
+        var mockKakaoTokenResponse = new KakaoTokenResponse("ACCESSTOKEN", 10000, "REFRESHTOKEN", 600000);
+        var mockKakaoToken = new OauthToken(mockMember, OauthType.KAKAO, "ACCESSTOKEN", 10000, "REFRESHTOKEN", 600000);
         var mockKakaoAuthInformation = new KakaoAuthInformation("MOCK", "MOCK@naver.com");
 
         Mockito.when(kakaoService.saveKakaoToken(any(Member.class), any(KakaoTokenResponse.class)))
@@ -125,7 +126,7 @@ class AuthServiceTest {
         //given
         var code = "인가코드";
         //when
-        var auth = authService.kakaoAuth(code);
+        var auth = authService.loginWithKakaoAuth(code);
         //then
         var role = authTestReflectionComponent.getMemberRoleWithToken(auth.token());
         var id = authTestReflectionComponent.getMemberIdWithToken(auth.token());
@@ -144,10 +145,24 @@ class AuthServiceTest {
         var auth = authService.register(registerRequest);
         var code = "인가코드";
         //when, then
-        Assertions.assertThatThrownBy(() -> authService.kakaoAuth(code)).isInstanceOf(DuplicatedEmailException.class);
+        Assertions.assertThatThrownBy(() -> authService.loginWithKakaoAuth(code)).isInstanceOf(DuplicatedEmailException.class);
 
         var id = authTestReflectionComponent.getMemberIdWithToken(auth.token());
         memberService.deleteMember(id);
+    }
+
+    @Test
+    @DisplayName("이미 카카오로 가입된 이용자의 이메일로 회원가입하기 - 실패")
+    void failRegisterWithAlreadyExistsKakaoEmail() {
+        //given
+        var code = "인가코드";
+        var auth = authService.loginWithKakaoAuth(code);
+        var memberId = authTestReflectionComponent.getMemberIdWithToken(auth.token());
+        var registerRequest = new RegisterRequest("MOCK", "MOCK@naver.com", "testPassword", "MEMBER");
+        //when, then
+        Assertions.assertThatThrownBy(() -> authService.register(registerRequest)).isInstanceOf(DuplicatedEmailException.class);
+
+        memberService.deleteMember(memberId);
     }
 
     @Test
@@ -155,10 +170,10 @@ class AuthServiceTest {
     void successKakaoLogin() {
         //given
         var code = "인가코드";
-        var auth = authService.kakaoAuth(code);
+        var auth = authService.loginWithKakaoAuth(code);
         var memberId = authTestReflectionComponent.getMemberIdWithToken(auth.token());
         //when
-        var loginAuth = authService.kakaoAuth(code);
+        var loginAuth = authService.loginWithKakaoAuth(code);
         var loginMemberId = authTestReflectionComponent.getMemberIdWithToken(loginAuth.token());
 
         Assertions.assertThat(memberId).isEqualTo(loginMemberId);

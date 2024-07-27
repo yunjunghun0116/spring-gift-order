@@ -10,6 +10,7 @@ import gift.exception.InvalidLoginInfoException;
 import gift.exception.NotFoundElementException;
 import gift.model.Member;
 import gift.model.MemberRole;
+import gift.model.OauthType;
 import gift.repository.MemberRepository;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
@@ -45,7 +46,7 @@ public class AuthService {
         return createAuthResponseWithMember(member);
     }
 
-    public AuthResponse kakaoAuth(String code) {
+    public AuthResponse loginWithKakaoAuth(String code) {
         var kakaoTokenResponse = kakaoService.getKakaoTokenResponse(code);
         var kakaoAuthInformation = kakaoService.getKakaoAuthInformation(kakaoTokenResponse);
         var member = getMemberWithKakaoAuth(kakaoAuthInformation);
@@ -78,7 +79,7 @@ public class AuthService {
     }
 
     private Member saveMemberWithKakaoAuth(KakaoAuthInformation kakaoAuthInformation) {
-        var member = new Member(kakaoAuthInformation.name(), kakaoAuthInformation.email(), MemberRole.MEMBER);
+        var member = new Member(kakaoAuthInformation.name(), kakaoAuthInformation.email(), MemberRole.MEMBER, OauthType.KAKAO);
         return memberRepository.save(member);
     }
 
@@ -86,11 +87,10 @@ public class AuthService {
         if (!memberRepository.existsByEmail(kakaoAuthInformation.email())) {
             return saveMemberWithKakaoAuth(kakaoAuthInformation);
         }
-        var member = memberRepository.findByEmail(kakaoAuthInformation.email())
-                .orElseThrow(() -> new NotFoundElementException(kakaoAuthInformation.email() + "을 가진 이용자가 존재하지 않습니다."));
-        if (!member.getPassword().equals("SOCIAL")) {
+        if (!memberRepository.existsByEmailAndPassword(kakaoAuthInformation.email(), OauthType.KAKAO.name())) {
             throw new DuplicatedEmailException("이미 존재하는 이메일입니다.");
         }
-        return member;
+        return memberRepository.findByEmail(kakaoAuthInformation.email())
+                .orElseThrow(() -> new NotFoundElementException(kakaoAuthInformation.email() + "을 가진 이용자가 존재하지 않습니다."));
     }
 }
