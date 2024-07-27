@@ -6,6 +6,7 @@ import gift.dto.option.OptionResponse;
 import gift.dto.option.OptionUpdateRequest;
 import gift.service.KakaoService;
 import gift.service.OptionService;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -27,6 +28,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/options")
+@Tag(name = "OPTION")
 public class OptionController {
 
     private final OptionService optionService;

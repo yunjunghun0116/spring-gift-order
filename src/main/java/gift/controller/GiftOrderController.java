@@ -2,6 +2,7 @@ package gift.controller;
 
 import gift.dto.giftorder.GiftOrderResponse;
 import gift.service.GiftOrderService;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
@@ -17,6 +18,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/giftOrders")
+@Tag(name = "GIFT_ORDER")
 public class GiftOrderController {
 
     private final GiftOrderService giftOrderService;

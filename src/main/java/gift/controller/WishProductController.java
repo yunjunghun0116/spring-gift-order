@@ -4,6 +4,7 @@ import gift.dto.wishproduct.WishProductAddRequest;
 import gift.dto.wishproduct.WishProductResponse;
 import gift.dto.wishproduct.WishProductUpdateRequest;
 import gift.service.WishProductService;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -24,6 +25,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/wishes")
+@Tag(name = "WISH_PRODUCT")
 public class WishProductController {
 
     private final WishProductService wishProductService;

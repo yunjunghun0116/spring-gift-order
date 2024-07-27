@@ -4,6 +4,8 @@ import gift.dto.auth.AuthResponse;
 import gift.dto.auth.LoginRequest;
 import gift.dto.auth.RegisterRequest;
 import gift.service.auth.AuthService;
+import io.swagger.v3.oas.annotations.Hidden;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -15,6 +17,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping("/api/members")
+@Tag(name = "MEMBER")
 public class AuthController {
 
     private final AuthService authService;
@@ -35,6 +38,7 @@ public class AuthController {
         return ResponseEntity.ok(auth);
     }
 
+    @Hidden
     @GetMapping("/oauth/kakao")
     public ResponseEntity<AuthResponse> loginWithKakaoAuth(@RequestParam String code) {
         var auth = authService.loginWithKakaoAuth(code);

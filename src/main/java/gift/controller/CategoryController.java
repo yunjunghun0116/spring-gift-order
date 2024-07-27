@@ -3,6 +3,7 @@ package gift.controller;
 import gift.dto.category.CategoryRequest;
 import gift.dto.category.CategoryResponse;
 import gift.service.CategoryService;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -22,6 +23,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/categories")
+@Tag(name = "CATEGORY")
 public class CategoryController {
 
     private final CategoryService categoryService;

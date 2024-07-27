@@ -4,6 +4,7 @@ import gift.dto.product.ProductRequest;
 import gift.dto.product.ProductResponse;
 import gift.model.MemberRole;
 import gift.service.ProductService;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -24,6 +25,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/products")
+@Tag(name = "PRODUCT")
 public class ProductController {
 
     private final ProductService productService;

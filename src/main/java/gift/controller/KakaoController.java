@@ -2,6 +2,8 @@ package gift.controller;
 
 import gift.config.properties.KakaoProperties;
 import gift.service.KakaoService;
+import io.swagger.v3.oas.annotations.Hidden;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -15,6 +17,7 @@ import java.net.URI;
 
 @RestController
 @RequestMapping("/api/kakao")
+@Tag(name = "KAKAO")
 public class KakaoController {
 
     private final KakaoService kakaoService;
@@ -32,6 +35,7 @@ public class KakaoController {
         return new ResponseEntity<>(headers, HttpStatus.MOVED_PERMANENTLY);
     }
 
+    @Hidden
     @GetMapping("/token")
     public ResponseEntity<Void> setToken(@RequestParam String code, @RequestParam String state) {
         var memberId = Long.valueOf(state);
