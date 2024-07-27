@@ -8,9 +8,9 @@ import gift.dto.kakao.KakaoTokenResponse;
 import gift.dto.order.GiftOrderResponse;
 import gift.exception.DuplicatedEmailException;
 import gift.exception.InvalidLoginInfoException;
-import gift.model.KakaoToken;
 import gift.model.Member;
 import gift.model.MemberRole;
+import gift.model.OAuthToken;
 import gift.reflection.AuthTestReflectionComponent;
 import gift.repository.MemberRepository;
 import gift.service.MemberService;
@@ -48,8 +48,8 @@ class AuthServiceTest {
         Mockito.doNothing().when(kakaoService).deleteByMemberId(any(Long.class));
 
         var mockMember = new Member("MOCK", "MOCK@naver.com", MemberRole.MEMBER);
-        var mockKakaoTokenResponse = new KakaoTokenResponse("ACCESSTOKEN", "REFRESHTOKEN");
-        var mockKakaoToken = new KakaoToken(mockMember, "ACCESSTOKEN", "REFRESHTOKEN");
+        var mockKakaoTokenResponse = new KakaoTokenResponse("ACCESSTOKEN", 10000, "REFRESHTOKEN", 6000000);
+        var mockKakaoToken = new OAuthToken(mockMember, "ACCESSTOKEN", "REFRESHTOKEN", 10000, 6000000);
         var mockKakaoAuthInformation = new KakaoAuthInformation("MOCK", "MOCK@naver.com");
 
         Mockito.when(kakaoService.saveKakaoToken(any(Member.class), any(KakaoTokenResponse.class)))
