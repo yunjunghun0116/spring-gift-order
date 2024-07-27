@@ -7,8 +7,8 @@ import gift.dto.kakao.KakaoTokenResponse;
 import gift.dto.order.GiftOrderResponse;
 import gift.exception.InvalidKakaoTokenException;
 import gift.exception.NotFoundElementException;
+import gift.model.KakaoToken;
 import gift.model.Member;
-import gift.model.OAuthToken;
 import gift.repository.KakaoTokenRepository;
 import gift.repository.MemberRepository;
 import org.springframework.stereotype.Service;
@@ -41,14 +41,14 @@ public class KakaoService {
         saveKakaoToken(member, kakaoTokenResponse);
     }
 
-    public OAuthToken saveKakaoToken(Member member, KakaoTokenResponse kakaoTokenResponse) {
+    public KakaoToken saveKakaoToken(Member member, KakaoTokenResponse kakaoTokenResponse) {
         if (kakaoTokenRepository.existsByMemberId(member.getId())) {
             var kakaoToken = kakaoTokenRepository.findByMemberId(member.getId())
                     .orElseThrow(() -> new InvalidKakaoTokenException(member.getId() + "를 가진 이용자의 카카오 토큰 정보가 존재하지 않습니다."));
-            kakaoToken.updateToken(kakaoTokenResponse.accessToken(), kakaoTokenResponse.refreshToken());
+            kakaoToken.updateToken(kakaoTokenResponse);
             return kakaoTokenRepository.save(kakaoToken);
         }
-        var kakaoToken = new OAuthToken(member, kakaoTokenResponse.accessToken(), kakaoTokenResponse.refreshToken(), kakaoTokenResponse.accessTokenExpiresIn(), kakaoTokenResponse.refreshTokenExpiresIn());
+        var kakaoToken = new KakaoToken(member, kakaoTokenResponse.accessToken(), kakaoTokenResponse.refreshToken());
         return kakaoTokenRepository.save(kakaoToken);
     }
 
@@ -72,13 +72,13 @@ public class KakaoService {
         kakaoTokenRepository.deleteByMemberId(memberId);
     }
 
-    private OAuthToken tokenValidation(OAuthToken OAuthToken) {
+    private KakaoToken tokenValidation(KakaoToken kakaoToken) {
         try {
-            kakaoApiClient.canUseKakaoAccessToken(OAuthToken.getAccessToken());
+            kakaoApiClient.canUseKakaoAccessToken(kakaoToken.getAccessToken());
         } catch (InvalidKakaoTokenException exception) {
-            var kakaoTokenResponse = kakaoApiClient.getRefreshedTokenResponse(OAuthToken.getRefreshToken());
-            OAuthToken = saveKakaoToken(OAuthToken.getMember(), kakaoTokenResponse);
+            var kakaoTokenResponse = kakaoApiClient.getRefreshedTokenResponse(kakaoToken.getRefreshToken());
+            kakaoToken = saveKakaoToken(kakaoToken.getMember(), kakaoTokenResponse);
         }
-        return OAuthToken;
+        return kakaoToken;
     }
 }

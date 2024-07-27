@@ -26,14 +26,14 @@ public class KakaoApiClient {
     private final RestClient client = RestClient.builder().build();
     private final KakaoProperties kakaoProperties;
     private final ObjectMapper objectMapper = new ObjectMapper();
-    private final String INVALID_TOKEN_MESSAGE = "유효하지 않은 토큰입니다. 갱신이 필요합니다.";
-    private final String TOKEN_BASE_URL = "https://kauth.kakao.com/oauth/token";
+    private final String INVALID_KAKAO_TOKEN_MESSAGE = "유효하지 않은 토큰입니다. 갱신이 필요합니다.";
 
     public KakaoApiClient(KakaoProperties kakaoProperties) {
         this.kakaoProperties = kakaoProperties;
     }
 
     public KakaoTokenResponse getTokenResponse(String code, String redirectUri) {
+        var url = "https://kauth.kakao.com/oauth/token";
         var body = new LinkedMultiValueMap<String, String>();
         body.add("grant_type", "authorization_code");
         body.add("client_id", kakaoProperties.restApiKey());
@@ -41,7 +41,7 @@ public class KakaoApiClient {
         body.add("code", code);
 
         var response = client.post()
-                .uri(URI.create(TOKEN_BASE_URL))
+                .uri(URI.create(url))
                 .contentType(MediaType.APPLICATION_FORM_URLENCODED)
                 .body(body)
                 .retrieve()
@@ -51,21 +51,22 @@ public class KakaoApiClient {
     }
 
     public KakaoTokenResponse getRefreshedTokenResponse(String refreshToken) {
+        var url = "https://kauth.kakao.com/oauth/token";
         var body = new LinkedMultiValueMap<String, String>();
         body.add("grant_type", "refresh_token");
         body.add("client_id", kakaoProperties.restApiKey());
         body.add("refresh_token", refreshToken);
 
         var response = client.post()
-                .uri(URI.create(TOKEN_BASE_URL))
+                .uri(URI.create(url))
                 .contentType(MediaType.APPLICATION_FORM_URLENCODED)
                 .body(body)
                 .retrieve()
                 .onStatus(statusCode -> statusCode.equals(HttpStatus.UNAUTHORIZED), (req, res) -> {
-                    throw new InvalidKakaoTokenException(INVALID_TOKEN_MESSAGE);
+                    throw new InvalidKakaoTokenException(INVALID_KAKAO_TOKEN_MESSAGE);
                 })
                 .onStatus(statusCode -> statusCode.equals(HttpStatus.BAD_REQUEST), (req, res) -> {
-                    throw new InvalidKakaoTokenException(INVALID_TOKEN_MESSAGE);
+                    throw new InvalidKakaoTokenException(INVALID_KAKAO_TOKEN_MESSAGE);
                 })
                 .body(String.class);
 
@@ -94,10 +95,10 @@ public class KakaoApiClient {
                 .header("Authorization", header)
                 .retrieve()
                 .onStatus(statusCode -> statusCode.equals(HttpStatus.UNAUTHORIZED), (req, res) -> {
-                    throw new InvalidKakaoTokenException(INVALID_TOKEN_MESSAGE);
+                    throw new InvalidKakaoTokenException(INVALID_KAKAO_TOKEN_MESSAGE);
                 })
                 .onStatus(statusCode -> statusCode.equals(HttpStatus.BAD_REQUEST), (req, res) -> {
-                    throw new InvalidKakaoTokenException(INVALID_TOKEN_MESSAGE);
+                    throw new InvalidKakaoTokenException(INVALID_KAKAO_TOKEN_MESSAGE);
                 })
                 .body(String.class);
     }
@@ -118,7 +119,7 @@ public class KakaoApiClient {
                     .body(body)
                     .retrieve()
                     .onStatus(statusCode -> statusCode.equals(HttpStatus.UNAUTHORIZED), (req, res) -> {
-                        throw new InvalidKakaoTokenException(INVALID_TOKEN_MESSAGE);
+                        throw new InvalidKakaoTokenException(INVALID_KAKAO_TOKEN_MESSAGE);
                     })
                     .body(String.class);
         } catch (JsonProcessingException exception) {
