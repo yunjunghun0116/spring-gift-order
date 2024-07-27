@@ -13,13 +13,13 @@ public class MemberService {
     private final MemberRepository memberRepository;
     private final WishProductService wishProductService;
     private final KakaoService kakaoService;
-    private final OrderService orderService;
+    private final GiftOrderService giftOrderService;
 
-    public MemberService(MemberRepository memberRepository, WishProductService wishProductService, KakaoService kakaoService, OrderService orderService) {
+    public MemberService(MemberRepository memberRepository, WishProductService wishProductService, KakaoService kakaoService, GiftOrderService giftOrderService) {
         this.memberRepository = memberRepository;
         this.wishProductService = wishProductService;
         this.kakaoService = kakaoService;
-        this.orderService = orderService;
+        this.giftOrderService = giftOrderService;
     }
 
     public void deleteMember(Long memberId) {
@@ -27,7 +27,7 @@ public class MemberService {
             throw new NotFoundElementException("존재하지 않는 이용자의 ID 입니다.");
         }
         kakaoService.deleteByMemberId(memberId);
-        orderService.deleteAllByMemberId(memberId);
+        giftOrderService.deleteAllByMemberId(memberId);
         wishProductService.deleteAllByMemberId(memberId);
         memberRepository.deleteById(memberId);
     }

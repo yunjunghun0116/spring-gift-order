@@ -3,8 +3,8 @@ package gift.service;
 import gift.dto.option.OptionAddRequest;
 import gift.dto.option.OptionResponse;
 import gift.dto.option.OptionUpdateRequest;
-import gift.dto.order.OrderRequest;
-import gift.dto.order.OrderResponse;
+import gift.dto.order.GiftOrderRequest;
+import gift.dto.order.GiftOrderResponse;
 import gift.exception.DuplicatedNameException;
 import gift.exception.NotFoundElementException;
 import gift.model.Option;
@@ -23,12 +23,12 @@ public class OptionService {
 
     private final OptionRepository optionRepository;
     private final ProductRepository productRepository;
-    private final OrderService orderService;
+    private final GiftOrderService giftOrderService;
 
-    public OptionService(OptionRepository optionRepository, ProductRepository productRepository, OrderService orderService) {
+    public OptionService(OptionRepository optionRepository, ProductRepository productRepository, GiftOrderService giftOrderService) {
         this.optionRepository = optionRepository;
         this.productRepository = productRepository;
-        this.orderService = orderService;
+        this.giftOrderService = giftOrderService;
     }
 
     public OptionResponse addOption(OptionAddRequest optionAddRequest) {
@@ -55,7 +55,7 @@ public class OptionService {
         if (!optionRepository.existsById(optionId)) {
             throw new NotFoundElementException("존재하지 않는 상품 옵션의 ID 입니다.");
         }
-        orderService.deleteAllByOptionId(optionId);
+        giftOrderService.deleteAllByOptionId(optionId);
         optionRepository.deleteById(optionId);
     }
 
@@ -68,9 +68,9 @@ public class OptionService {
         optionRepository.save(option);
     }
 
-    public OrderResponse orderOption(Long memberId, OrderRequest orderRequest) {
-        var option = subtractOptionQuantity(orderRequest.optionId(), orderRequest.quantity());
-        return orderService.addOrder(memberId, option, orderRequest);
+    public GiftOrderResponse orderOption(Long memberId, GiftOrderRequest giftOrderRequest) {
+        var option = subtractOptionQuantity(giftOrderRequest.optionId(), giftOrderRequest.quantity());
+        return giftOrderService.addGiftOrder(memberId, option, giftOrderRequest);
     }
 
     private Option subtractOptionQuantity(Long id, Integer quantity) {

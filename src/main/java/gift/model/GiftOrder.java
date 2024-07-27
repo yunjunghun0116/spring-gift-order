@@ -11,10 +11,10 @@ import org.hibernate.annotations.SQLDelete;
 import org.hibernate.annotations.SQLRestriction;
 
 @Entity
-@Table(name = "orders")
-@SQLDelete(sql = "update order set deleted = true where id = ?")
+@Table(name = "gift_order")
+@SQLDelete(sql = "update gift_order set deleted = true where id = ?")
 @SQLRestriction("deleted is false")
-public class Order extends BaseEntity {
+public class GiftOrder extends BaseEntity {
 
     @NotNull
     @ManyToOne(fetch = FetchType.LAZY)
@@ -34,7 +34,7 @@ public class Order extends BaseEntity {
     @Column(name = "deleted")
     private Boolean deleted = Boolean.FALSE;
 
-    protected Order() {
+    protected GiftOrder() {
     }
 
     public Member getMember() {
@@ -53,7 +53,7 @@ public class Order extends BaseEntity {
         return message;
     }
 
-    public Order(Member member, Option option, Integer quantity, String message) {
+    public GiftOrder(Member member, Option option, Integer quantity, String message) {
         this.member = member;
         this.option = option;
         this.quantity = quantity;

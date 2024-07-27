@@ -4,7 +4,7 @@ import gift.client.KakaoApiClient;
 import gift.config.properties.KakaoProperties;
 import gift.dto.kakao.KakaoAuthInformation;
 import gift.dto.kakao.KakaoTokenResponse;
-import gift.dto.order.OrderResponse;
+import gift.dto.order.GiftOrderResponse;
 import gift.exception.InvalidKakaoTokenException;
 import gift.exception.NotFoundElementException;
 import gift.model.KakaoToken;
@@ -60,11 +60,11 @@ public class KakaoService {
         return KakaoAuthInformation.of(name, email);
     }
 
-    public void sendSelfMessageOrder(Long memberId, OrderResponse orderResponse) {
+    public void sendSelfMessageOrder(Long memberId, GiftOrderResponse giftOrderResponse) {
         var kakaoToken = kakaoTokenRepository.findByMemberId(memberId)
                 .orElseThrow(() -> new InvalidKakaoTokenException(memberId + "를 가진 이용자의 카카오 토큰 정보가 존재하지 않습니다."));
         var validatedKakaoToken = tokenValidation(kakaoToken);
-        kakaoApiClient.sendSelfMessageOrder(validatedKakaoToken.getAccessToken(), orderResponse);
+        kakaoApiClient.sendSelfMessageOrder(validatedKakaoToken.getAccessToken(), giftOrderResponse);
     }
 
     public void deleteByMemberId(Long memberId) {
