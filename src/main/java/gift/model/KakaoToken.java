@@ -1,6 +1,5 @@
 package gift.model;
 
-import gift.dto.kakao.KakaoTokenResponse;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -44,10 +43,10 @@ public class KakaoToken extends BaseEntity {
         return member;
     }
 
-    public void updateToken(KakaoTokenResponse kakaoTokenResponse) {
-        this.accessToken = kakaoTokenResponse.accessToken();
-        if (kakaoTokenResponse.refreshToken() != null) {
-            this.refreshToken = kakaoTokenResponse.refreshToken();
+    public void updateToken(String accessToken, String refreshToken) {
+        this.accessToken = accessToken;
+        if (refreshToken != null) {
+            this.refreshToken = refreshToken;
         }
     }
 }

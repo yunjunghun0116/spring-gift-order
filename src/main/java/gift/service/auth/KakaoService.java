@@ -45,7 +45,7 @@ public class KakaoService {
         if (kakaoTokenRepository.existsByMemberId(member.getId())) {
             var kakaoToken = kakaoTokenRepository.findByMemberId(member.getId())
                     .orElseThrow(() -> new InvalidKakaoTokenException(member.getId() + "를 가진 이용자의 카카오 토큰 정보가 존재하지 않습니다."));
-            kakaoToken.updateToken(kakaoTokenResponse);
+            kakaoToken.updateToken(kakaoTokenResponse.accessToken(), kakaoTokenResponse.refreshToken());
             return kakaoTokenRepository.save(kakaoToken);
         }
         var kakaoToken = new KakaoToken(member, kakaoTokenResponse.accessToken(), kakaoTokenResponse.refreshToken());
