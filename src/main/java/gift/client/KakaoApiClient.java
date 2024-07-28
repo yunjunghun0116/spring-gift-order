@@ -23,14 +23,15 @@ import java.net.URI;
 @Component
 public class KakaoApiClient {
 
-    private final RestClient client = RestClient.builder().build();
+    private final RestClient restClient;
     private final KakaoProperties kakaoProperties;
     private final ObjectMapper objectMapper = new ObjectMapper();
     private final String INVALID_TOKEN_MESSAGE = "유효하지 않은 토큰입니다. 갱신이 필요합니다.";
     private static final String TOKEN_BASE_URL = "https://kauth.kakao.com/oauth/token";
 
-    public KakaoApiClient(KakaoProperties kakaoProperties) {
+    public KakaoApiClient(KakaoProperties kakaoProperties, RestClient restClient) {
         this.kakaoProperties = kakaoProperties;
+        this.restClient = restClient;
     }
 
     public KakaoTokenResponse getTokenResponse(String code, String redirectUri) {
@@ -40,7 +41,7 @@ public class KakaoApiClient {
         body.add("redirect_uri", redirectUri);
         body.add("code", code);
 
-        var response = client.post()
+        var response = restClient.post()
                 .uri(URI.create(TOKEN_BASE_URL))
                 .contentType(MediaType.APPLICATION_FORM_URLENCODED)
                 .body(body)
@@ -56,7 +57,7 @@ public class KakaoApiClient {
         body.add("client_id", kakaoProperties.restApiKey());
         body.add("refresh_token", refreshToken);
 
-        var response = client.post()
+        var response = restClient.post()
                 .uri(URI.create(TOKEN_BASE_URL))
                 .contentType(MediaType.APPLICATION_FORM_URLENCODED)
                 .body(body)
@@ -76,7 +77,7 @@ public class KakaoApiClient {
         var url = "https://kapi.kakao.com/v2/user/me";
         var header = "Bearer " + kakaoTokenResponse.accessToken();
 
-        var response = client.get()
+        var response = restClient.get()
                 .uri(URI.create(url))
                 .header("Authorization", header)
                 .retrieve()
@@ -94,7 +95,7 @@ public class KakaoApiClient {
             var body = new LinkedMultiValueMap<String, Object>();
             body.add("template_object", objectMapper.writeValueAsString(template));
 
-            client.post()
+            restClient.post()
                     .uri(URI.create(url))
                     .header("Authorization", header)
                     .contentType(MediaType.APPLICATION_FORM_URLENCODED)
