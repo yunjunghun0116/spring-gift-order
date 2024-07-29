@@ -26,7 +26,7 @@ public class KakaoApiClient {
     private final RestClient restClient;
     private final KakaoProperties kakaoProperties;
     private final ObjectMapper objectMapper = new ObjectMapper();
-    private final String INVALID_TOKEN_MESSAGE = "유효하지 않은 토큰입니다. 갱신이 필요합니다.";
+    private static final String INVALID_TOKEN_MESSAGE = "유효하지 않은 토큰입니다. 갱신이 필요합니다.";
     private static final String TOKEN_BASE_URL = "https://kauth.kakao.com/oauth/token";
 
     public KakaoApiClient(KakaoProperties kakaoProperties, RestClient restClient) {
